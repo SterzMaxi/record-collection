@@ -42,8 +42,8 @@ services:
     ports:
        - "8081:8081"
     volumes:
-      - keycloak_data:/opt/jboss/keycloak/standalone/data
-      - keycloak_logs:/opt/jboss/keycloak/standalone/log
+      - keycloak_data:/opt/jboss/keycloak/standalone/data/
+      - keycloak_logs:/opt/jboss/keycloak/standalone/log/
 
 volumes:
   mysql-data:

@@ -1,5 +1,6 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Secured from './views/Secured.vue'
+import Home from './views/Home.vue';
 </script>
 
 <template>
@@ -11,8 +12,18 @@ import HelloWorld from './components/HelloWorld.vue'
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <Home msg="Hallo Welt" />
 </template>
+
+<script>
+
+export default {
+  name: 'App',
+  components: {
+    Home
+  }
+};
+</script>
 
 <style scoped>
 .logo {

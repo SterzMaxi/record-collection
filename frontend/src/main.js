@@ -1,29 +1,27 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
-import Keycloak from 'keycloak-js';
+import router from './router/router.js'
+import authentication from './plugins/KeycloakPlugin.js'
 
-const keycloakInitOptions = {
-    url: import.meta.env.VITE_KEYCLOAK_URL,
-    clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
-    realm: import.meta.env.VITE_KEYCLOAK_REALM,
-    onLoad: 'login-required'
-}
+// Create the Vue app instance
+const app = createApp(App);
 
-const keycloak = new Keycloak(keycloakInitOptions);
+// Use the authentication plugin
+app.use(authentication);
 
-keycloak.init({ onLoad: keycloakInitOptions.onLoad }).then((auth) => {
+const keycloak = app.config.globalProperties.$keycloak;
 
-    if (!auth) {
-        window.location.reload();
-        console.log('not worked');
-    } else {
-        console.log("Authenticated");
-        localStorage.setItem("vue-token", keycloak.token);
-        localStorage.setItem("vue-refresh-token", keycloak.refreshToken);
-        createApp(App).mount('#app')
-    }
 
-}).catch(() => {
-    console.log("Authenticated Failed");
-});
+// Initialize Keycloak and mount the app once initialization is complete
+keycloak.init({ checkLoginIframe: false }).then(() => {
+    
+    // Use the router
+    app.use(router);
+    
+    // Mount the app to the DOM
+    app.mount('#app');
+    console.log('keycloak initalization successfull');
+  }).catch(error => {
+    console.error('Keycloak initialization failed', error);
+  });
