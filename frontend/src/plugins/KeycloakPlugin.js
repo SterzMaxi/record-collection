@@ -6,8 +6,6 @@ const keycloakInitOptions = {
     clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
     realm: import.meta.env.VITE_KEYCLOAK_REALM,
     onLoad: 'check-sso'
-    //checkLoginframe: false
-    //onLoad: 'login-required'
 }
 
 const keycloak = new Keycloak(keycloakInitOptions);
