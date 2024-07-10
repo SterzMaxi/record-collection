@@ -4,15 +4,13 @@
 <div>
   <b-navbar fixed = "top" toggleable="lg" type="dark" variant="info">
     <b-navbar-brand href="#">RECORD DIGGING</b-navbar-brand>
-
-    <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
-    <b-collapse id="nav-collapse" is-nav>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="mx-auto">
         <b-nav-form>
-          <b-form-input size="sm" class="mr-sm-2" placeholder="Suchen"></b-form-input>
-          <b-button size="sm" class="my-2 my-sm-0" type="submit">Suchen</b-button>
+          <b-form-input style="width: 30.33vw;" size="sm" class="mr-sm-2" placeholder="Suchen"></b-form-input>
+          <b-button size="sm" class="my-2 my-sm-0" type="submit">
+            <i class="bi bi-search"></i>
+            </b-button>
         </b-nav-form>
         </b-navbar-nav>
         <b-navbar-nav>
@@ -30,11 +28,6 @@
           <button @click="login">Login</button>
         </div>
         </b-navbar-nav>
-        
-        
-        
-
-    </b-collapse>
   </b-navbar>
 </div>
 </html>
@@ -43,7 +36,19 @@
 <script setup>
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import keycloakplugin from '../plugins/KeycloakPlugin.js'
-import { BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BCollapse, BNavItem, BNavForm, BFormInput, BButton, BNavItemDropdown, BDropdownItem } from 'bootstrap-vue-3';
+import {
+  BNavbar,
+  BNavbarNav,
+  BNavbarBrand,
+  BNavbarToggle,
+  BCollapse,
+  BNavItem,
+  BNavForm,
+  BFormInput,
+  BButton,
+  BNavItemDropdown,
+  BDropdownItem
+} from 'bootstrap-vue-3';
 
 const props = defineProps({
   msg: String,
@@ -71,4 +76,18 @@ onMounted(() => {
     username.value = keycloak.tokenParsed.preferred_username || keycloak.tokenParsed.email;
   }
 });
+
+
 </script>
+
+<style>
+/* Include Bootstrap Icons CSS */
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+.navbar-nav .dropdown-menu 
+{
+  position:absolute !important;
+}
+
+
+</style>

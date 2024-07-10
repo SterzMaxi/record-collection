@@ -19,7 +19,7 @@ const keycloak = app.config.globalProperties.$keycloak;
 
 
 // Initialize Keycloak and mount the app once initialization is complete
-keycloak.init({ checkLoginIframe: false }).then(() => {
+keycloak.init({ onLoad: 'check-sso', checkLoginIframe: false }).then(() => {
     
     // Use the router
     app.use(router);

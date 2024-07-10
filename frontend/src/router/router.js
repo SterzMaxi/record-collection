@@ -24,6 +24,14 @@ const router = createRouter({
       component: () => import('../views/Secured.vue')
     },
     {
+      path: '/upload',
+      name: 'Upload',
+      meta: {
+        isAuthenticated: true
+      },
+      component: () => import('../views/Upload.vue')
+    },
+    {
       path: '/unauthorized',
       name: 'Unauthorized',
       meta: {
