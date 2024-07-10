@@ -51,14 +51,6 @@ Navigate to the frontend directory:
 
 
 cd frontend
-Install dependencies:
-
-
-npm install
-# or
-yarn install
-Start the development server:
-
 
 npm run dev
 # or
