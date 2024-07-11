@@ -1,12 +1,16 @@
 <script setup>
 import Secured from './views/Secured.vue'
 import Home from './views/Home.vue';
+import Upload from './views/Upload.vue';
+import Header from "./components/Header.vue"
+import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div>
-  </div>
-  <Home msg="RECORD DIGGING" />
+  <Header></Header>
+
+  <RouterView />
+  
 </template>
 
 <script>
@@ -14,7 +18,8 @@ import Home from './views/Home.vue';
 export default {
   name: 'App',
   components: {
-    Home
+    Home,
+    Upload
   }
 };
 </script>

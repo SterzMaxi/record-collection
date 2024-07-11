@@ -16,4 +16,5 @@ const Plugin = {
   }
 }
 
-export default Plugin
+export { keycloak };
+export default Plugin;

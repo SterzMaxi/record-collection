@@ -1,6 +1,8 @@
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { getCurrentInstance } from 'vue';
 import Home from '../views/Home.vue'
+import { keycloak } from '../plugins/KeycloakPlugin';
+
 
 const router = createRouter({
 
@@ -44,19 +46,15 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-
   if (to.meta.isAuthenticated) {
     // Get the actual url of the app, it's needed for Keycloak
     const basePath = window.location.toString();
 
-    if (!app.$keycloak.authenticated) {
-      // The page is protected and the user is not authenticated. Force a login.
-      app.$keycloak.login({ redirectUri: basePath.slice(0, -1) + to.path });
-    
+    if (keycloak.authenticated) {
+      next(); // The user is authenticated, proceed to the route
     } else {
-      // The user was authenticated, but did not have the correct role
-      // Redirect to an error page
-      next({ name: 'Unauthorized' });
+      // The page is protected and the user is not authenticated. Force a login.
+      keycloak.login({ redirectUri: basePath.slice(0, -1) + to.path });
     }
   } else {
     // This page did not require authentication

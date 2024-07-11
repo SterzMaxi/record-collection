@@ -1,12 +1,14 @@
 <script setup>
-import Header from "../components/Header.vue"
 </script>
 
 <template>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   </head>
-  <Header></Header>
+
+  <h1>
+    Home
+  </h1>
 </template>
 
 

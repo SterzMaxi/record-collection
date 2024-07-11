@@ -3,7 +3,7 @@
     <html>
 <div>
   <b-navbar fixed = "top" toggleable="lg" type="dark" variant="info">
-    <b-navbar-brand href="#">RECORD DIGGING</b-navbar-brand>
+    <b-navbar-brand><RouterLink to="/">Record Digging</RouterLink></b-navbar-brand>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="mx-auto">
         <b-nav-form>
@@ -20,12 +20,12 @@
           <template #button-content>
             <em>{{ username }}</em>
           </template>
-          <b-dropdown-item href="#">Profile</b-dropdown-item>
-          <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
+          <b-dropdown-item><RouterLink to="/upload">Collection hochladen</RouterLink></b-dropdown-item>
+          <b-dropdown-item @click="logout">Ausloggen</b-dropdown-item>
         </b-nav-item-dropdown>
         </div>
         <div v-else>
-          <button @click="login">Login</button>
+          <button @click="login">Einloggen</button>
         </div>
         </b-navbar-nav>
   </b-navbar>
