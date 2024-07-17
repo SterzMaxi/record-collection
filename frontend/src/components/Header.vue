@@ -68,7 +68,10 @@ const login = () => {
 };
 
 const logout = () => {
-  keycloak.logout({ redirectUri: window.location.origin });
+  keycloak.logout({ redirectUri: window.location.origin }).then(() => {
+    localStorage.removeItem("vue-token");
+    localStorage.removeItem("vue-refresh-token");
+  });
 };
 
 onMounted(() => {

@@ -6,19 +6,13 @@ use Symfony\Component\Form\Extensions\Core\Type\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Entity\Rercord;
 
 class RecordType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('title', TextType::class, array(
-                'attr' => array(
-                    'placeholder' =>'Record Titel eingeben'
-                )
-            ))
-            ->add('save', SubmitType::class)
-            ;
+        $builder ->add('content', TextType::class);
     }
     public function configureOptions(OptionsResolver $resolver): void
     {

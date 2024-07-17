@@ -22,14 +22,14 @@ class Record
      * @param string $tracktime
      * @param string $label
      * @param string $country
-     * @param date $releasedate
+     * @param \DateTime $releasedate
      * @param string $genre
      * @param string $collectionname
      * @param float $price
-     * @param image $bookletfront
-     * @param image $bookletback
+     * @param string $bookletfront
+     * @param string $bookletback
      * @param string $listenlink
-     * @param string $condition
+     * @param string $grade
      */
 
      public function __construct(
@@ -42,14 +42,14 @@ class Record
         string $tracktime,
         string $label,
         string $country,
-        date $releasedate,
+        \DateTime $releasedate,
         string $genre,
         string $collectionname,
         float $price,
-        blob $bookletfront,
-        blob $bookletback,
+        string $bookletfront,
+        string $bookletback,
         string $listenlink,
-        string $condition
+        string $grade
      ){
         $this->user = $user;
         $this->title = $title;
@@ -59,7 +59,7 @@ class Record
         $this->tracktitle = $tracktitle;
         $this->tracktime = $tracktime;
         $this->label = $label;
-        $this->county = $country;
+        $this->country = $country;
         $this->releasedate = $releasedate;
         $this->genre = $genre;
         $this->collectionname = $collectionname;
@@ -67,7 +67,7 @@ class Record
         $this->bookletfront = $bookletfront;
         $this->bookletback = $bookletback;
         $this->listenlink = $listenlink;
-        $this->condition = $condition;
+        $this->grade = $grade;
      }
 
 
@@ -104,8 +104,8 @@ class Record
     #[ORM\Column(name: 'country', type: 'string')]
     private string $country;
 
-    #[ORM\Column(name: 'release_date', type: 'date')]
-    private date $releasedate;
+    #[ORM\Column(name: 'release_date', type: 'datetime')]
+    private \DateTime $releasedate;
 
     #[ORM\Column(name: 'genre', type: 'string')]
     private string $genre;
@@ -116,17 +116,17 @@ class Record
     #[ORM\Column(name: 'price', type: 'float')]
     private float $price;
 
-    #[ORM\Column(name: 'booklet_front', type: 'blob')]
-    private blob $bookletfront;
+    #[ORM\Column(name: 'booklet_front', type: 'string')]
+    private string $bookletfront;
 
-    #[ORM\Column(name: 'booklet_back', type: 'blob')]
-    private blob $bookletback;
+    #[ORM\Column(name: 'booklet_back', type: 'string')]
+    private string $bookletback;
 
     #[ORM\Column(name: 'listen_link', type: 'string')]
     private string $listenlink;
 
-    #[ORM\Column(name: 'condition', type: 'string')]
-    private string $condition;
+    #[ORM\Column(name: 'grade', type: 'string')]
+    private string $grade;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
     private DateTimeImmutable $created;
@@ -229,12 +229,12 @@ class Record
         $this->country = $country;
     }
 
-    public function getReleaseDate(): date
+    public function getReleaseDate(): ?\DateTimeInterface
     {
         return $this->releasedate;
     }
 
-    public function setReleaseDate(date $releasedate): void
+    public function setReleaseDate(DateTimeInterface $releasedate): void
     {
         $this->releasedate = $releasedate;
     }
@@ -269,24 +269,26 @@ class Record
         $this->price = $price;
     }
 
-    public function getBookletFront(): blob
+    public function getBookletFront(): ?string
     {
         return $this->bookletfront;
     }
 
-    public function setBookletFront(?blob $bookletfront = null): void
+    public function setBookletFront(?string $bookletfront): self
     {
         $this->bookletfront = $bookletfront;
+        return $this;
     }
 
-    public function getBookletBack(): blob
+    public function getBookletBack(): ?string
     {
         return $this->bookletback;
     }
 
-    public function setBookletBack(?blob $bookletback = null): void
+    public function setBookletBack(?string $bookletback): self
     {
         $this->bookletback = $bookletback;
+        return $this;
     }
 
     public function getLitenLink(): string
@@ -299,14 +301,14 @@ class Record
         $this->listenlink = $listenlink;
     }
 
-    public function getCondition(): string
+    public function getgrade(): string
     {
-        return $this->condition;
+        return $this->grade;
     }
 
-    public function setCondition(string $condition): void
+    public function setgrade(string $grade): void
     {
-        $this->condition = $condition;
+        $this->grade = $grade;
     }
 
     #[ORM\PrePersist]
