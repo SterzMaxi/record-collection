@@ -1,15 +1,17 @@
 <script setup>
 import Secured from './views/Secured.vue'
 import Home from './views/Home.vue';
-import Upload from './views/Upload.vue';
+import Upload from './views/MyCollections.vue';
 import Header from "./components/Header.vue"
 import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
   <Header></Header>
-
-  <RouterView />
+  <div>
+    <RouterView />
+  </div>
+  
   
 </template>
 

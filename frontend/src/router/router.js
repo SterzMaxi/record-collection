@@ -27,12 +27,20 @@ const createRouterInstance = (keycloak) => {
         component: () => import('../views/Secured.vue')
       },
       {
-        path: '/upload',
-        name: 'Upload',
+        path: '/uploadcollection',
+        name: 'UploadCollection',
         meta: {
           isAuthenticated: true
         },
-        component: () => import('../views/Upload.vue')
+        component: () => import('../views/UploadCollection.vue')
+      },
+      {
+        path: '/mycollections',
+        name: 'MyCollections',
+        meta: {
+          isAuthenticated: true
+        },
+        component: () => import('../views/MyCollections.vue')
       },
       {
         path: '/unauthorized',

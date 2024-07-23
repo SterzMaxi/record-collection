@@ -2,7 +2,7 @@
     <!doctype html>
     <html>
 <div>
-  <b-navbar fixed = "top" toggleable="lg" type="dark" variant="info">
+  <b-navbar fixed = "top" toggleable="lg" type="dark" variant="dark">
     <b-navbar-brand><RouterLink to="/">Record Digging</RouterLink></b-navbar-brand>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="mx-auto">
@@ -18,9 +18,9 @@
           <b-nav-item-dropdown right>
           <!-- Using 'button-content' slot -->
           <template #button-content>
-            <em>{{ username }}</em>
+            <em class="text-white">{{ username }}</em>
           </template>
-          <b-dropdown-item><RouterLink to="/upload">Collection hochladen</RouterLink></b-dropdown-item>
+          <b-dropdown-item><RouterLink to="/mycollections">Meine Collections</RouterLink></b-dropdown-item>
           <b-dropdown-item @click="logout">Ausloggen</b-dropdown-item>
         </b-nav-item-dropdown>
         </div>

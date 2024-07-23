@@ -13,60 +13,47 @@ class Record
 {
 
     /**
-     * @param User $user
+     * @param Collection $collection
      * @param string $title
-     * @param string $artist
      * @param string $format
-     * @param string $tracknumber
-     * @param string $tracktitle
-     * @param string $tracktime
+     * @param int $trackcount
      * @param string $label
      * @param string $country
      * @param \DateTime $releasedate
      * @param string $genre
-     * @param string $collectionname
      * @param float $price
      * @param string $bookletfront
      * @param string $bookletback
-     * @param string $listenlink
      * @param string $grade
      */
 
      public function __construct(
-        User $user,
+        Collection $collection,
         string $title,
         string $artist,
         string $format,
-        string $tracknumber,
-        string $tracktitle,
-        string $tracktime,
+        int $trackcount,
         string $label,
         string $country,
         \DateTime $releasedate,
         string $genre,
-        string $collectionname,
         float $price,
         string $bookletfront,
         string $bookletback,
-        string $listenlink,
         string $grade
      ){
-        $this->user = $user;
+        $this->collection = $collection;
         $this->title = $title;
         $this->artist = $artist;
         $this->format = $format;
-        $this->tracknumber = $tracknumber;
-        $this->tracktitle = $tracktitle;
-        $this->tracktime = $tracktime;
+        $this->trackcount = $trackcount;
         $this->label = $label;
         $this->country = $country;
         $this->releasedate = $releasedate;
         $this->genre = $genre;
-        $this->collectionname = $collectionname;
         $this->price = $price;
         $this->bookletfront = $bookletfront;
         $this->bookletback = $bookletback;
-        $this->listenlink = $listenlink;
         $this->grade = $grade;
      }
 
@@ -76,9 +63,9 @@ class Record
     #[ORM\GeneratedValue]
     private int|null $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'record_user_id', referencedColumnName: 'user_id')]
-    private User $user;
+    #[ORM\ManyToOne(targetEntity: Collection::class)]
+    #[ORM\JoinColumn(name: 'record_collection_id', referencedColumnName: 'collection_id')]
+    private Collection $collection;
 
     #[ORM\Column(name: 'title', type: 'string')]
     private string $title;
@@ -89,14 +76,8 @@ class Record
     #[ORM\Column(name: 'format', type: 'string')]
     private string $format;
 
-    #[ORM\Column(name: 'track_number', type: 'string')]
-    private string $tracknumber;
-
-    #[ORM\Column(name: 'track_title', type: 'string')]
-    private string $tracktitle;
-
-    #[ORM\Column(name: 'track_time', type: 'string')]
-    private string $tracktime;
+    #[ORM\Column(name: 'track_count', type: 'integer')]
+    private int $trackcount;
 
     #[ORM\Column(name: 'label', type: 'string')]
     private string $label;
@@ -110,9 +91,6 @@ class Record
     #[ORM\Column(name: 'genre', type: 'string')]
     private string $genre;
 
-    #[ORM\Column(name: 'collection_name', type: 'string')]
-    private string $collectionname;
-
     #[ORM\Column(name: 'price', type: 'float')]
     private float $price;
 
@@ -121,9 +99,6 @@ class Record
 
     #[ORM\Column(name: 'booklet_back', type: 'string')]
     private string $bookletback;
-
-    #[ORM\Column(name: 'listen_link', type: 'string')]
-    private string $listenlink;
 
     #[ORM\Column(name: 'grade', type: 'string')]
     private string $grade;
@@ -139,14 +114,14 @@ class Record
         return $this->id;
     }
 
-    public function getUser(): User
+    public function getCollection(): Collection
     {
-        return $this->user;
+        return $this->collection;
     }
 
-    public function setUser(User $user): void
+    public function setCollection(User $collection): void
     {
-        $this->user = $user;
+        $this->collection = $collection;
     }
 
     public function getTitle(): string
@@ -179,34 +154,14 @@ class Record
         $this->format = $format;
     }
 
-    public function getTrackNumber(): string
+    public function getTrackcount(): int
     {
-        return $this->tracknumber;
+        return $this->trackcount;
     }
 
-    public function setTrackNumber(string $tracknumber): void
+    public function setTrackcount(int $trackcount): void
     {
-        $this->tracknumber = $tracknumber;
-    }
-
-    public function getTrackTitle(): string
-    {
-        return $this->tracktitle;
-    }
-
-    public function setTrackTitle(string $tracktitle): void
-    {
-        $this->tracktitle = $tracktitle;
-    }
-
-    public function getTrackTime(): string
-    {
-        return $this->tracktime;
-    }
-
-    public function setTrackTime(string $tracktime): void
-    {
-        $this->tracktime = $tracktime;
+        $this->trackcount = $trackcount;
     }
 
     public function getLabel(): string
@@ -249,16 +204,6 @@ class Record
         $this->genre = $genre;
     }
 
-    public function getCollectionName(): string
-    {
-        return $this->collectionname;
-    }
-
-    public function setCollectionName(string $collectionname): void
-    {
-        $this->collectionname = $collectionname;
-    }
-
     public function getPrice(): float
     {
         return $this->price;
@@ -289,16 +234,6 @@ class Record
     {
         $this->bookletback = $bookletback;
         return $this;
-    }
-
-    public function getLitenLink(): string
-    {
-        return $this->listenlink;
-    }
-
-    public function setListenLink(string $listenlink): void
-    {
-        $this->listenlink = $listenlink;
     }
 
     public function getgrade(): string

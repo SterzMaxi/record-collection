@@ -1,9 +1,8 @@
 <?php
-// src/Controller/UploadController.php
-
 namespace App\Controller;
 
 use App\Entity\Record;
+use App\Entity\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,15 +11,21 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Mime\MimeTypes;
 
-class UploadController extends AbstractController
+class RecordUploadController extends AbstractController
 {
-    #[Route('/api/upload', name: 'api_upload', methods: ['POST'])]
-    public function upload(Request $request, EntityManagerInterface $em, #[CurrentUser] $user): Response
+    #[Route('/api/record', name: 'api_create_record', methods: ['POST'])]
+    public function createRecord(Request $request, EntityManagerInterface $em, #[CurrentUser] $user): Response
     {
+        $collectionId = $request->request->get('collection_id');
+        $collection = $em->getRepository(Collection::class)->find($collectionId);
+        
+        if (!$collection) {
+            return new Response('Collection not found', Response::HTTP_BAD_REQUEST);
+        }
         $title = $request->request->get('title');
         $artist = $request->request->get('artist');
         $format = $request->request->get('format');
-        $tracknumber = $request->request->get('tracknumber');
+        $trackcount = $request->request->get('trackcount');
         $tracktitle = $request->request->get('tracktitle');
         $tracktime = $request->request->get('tracktime');
         $label = $request->request->get('label');
@@ -56,13 +61,11 @@ class UploadController extends AbstractController
         }
 
         $record = new Record(
-            $user,
+            $collection,
             $title,
             $artist,
             $format,
-            $tracknumber,
-            $tracktitle,
-            $tracktime,
+            (int)$trackcount,
             $label,
             $country,
             new \DateTime($releasedate),
@@ -71,7 +74,6 @@ class UploadController extends AbstractController
             (float)$price,
             $bookletfrontFilename,
             $bookletbackFilename,
-            $listenlink,
             $grade
         );
 

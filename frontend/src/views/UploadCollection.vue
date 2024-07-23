@@ -6,18 +6,18 @@
   </head>
 
   <h1>
-    Upload
+    Upload Collections
   </h1>
-  <UploadForm />
+  <CollectionUploadForm />
 </template>
 
 <script>
-  import UploadForm from '../components/UploadForm.vue';
+  import CollectionUploadForm from '../components/CollectionUploadForm.vue';
   
   export default {
     name: 'App',
     components: {
-      UploadForm,
+      CollectionUploadForm,
     },
   };
   </script>

@@ -1,5 +1,3 @@
-<!-- src/components/UploadForm.vue -->
-
 <template>
     <div>
       <form @submit.prevent="submitForm">
@@ -16,16 +14,8 @@
         <input type="text" v-model="form.format" required>
       </div>
       <div>
-        <label for="tracknumber">Tracknumber:</label>
-        <input type="text" v-model="form.tracknumber" required>
-      </div>
-      <div>
-        <label for="tracktitle">Tracktitle:</label>
-        <input type="text" v-model="form.tracktitle" required>
-      </div>
-      <div>
-        <label for="tracktime">Tracktime:</label>
-        <input type="text" v-model="form.tracktime" required>
+        <label for="trackcount">Track Anzahl:</label>
+        <input type="int" v-model="form.trackcount" required>
       </div>
       <div>
         <label for="label">Label:</label>
@@ -44,16 +34,8 @@
         <input type="text" v-model="form.genre" required>
       </div>
       <div>
-        <label for="collectionname">Collectionname:</label>
-        <input type="text" v-model="form.collectionname" required>
-      </div>
-      <div>
         <label for="price">Preis:</label>
         <input type="number" v-model="form.price" required>
-      </div>
-      <div>
-        <label for="listenlink">Listenlink:</label>
-        <input type="text" v-model="form.listenlink" required>
       </div>
       <div>
         <label for="grade">Kondition:</label>
@@ -84,17 +66,14 @@
         title: '',
         artist: '',
         format: '',
-        tracknumber: '',
-        tracktitle: '',
+        trackcount: 0,
         label: '',
         country: '',
         releasedate: '',
         genre: '',
-        collectionname: '',
         price: 0,
         bookletfront: null,
         bookletback: null,
-        listenlink: '',
         grade: '',
       },
     };
@@ -116,7 +95,7 @@
       });
 
       try {
-        const response = await axios.post('api/upload', formData, {
+        const response = await axios.post('api/record', formData, {
           headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
             'Content-Type': 'multipart/form-data'
