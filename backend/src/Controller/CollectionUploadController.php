@@ -38,8 +38,8 @@ class CollectionUploadController extends AbstractController
                 'id' => $collection->getId(),
                 'collectionname' => $collection->getCollectionName(),
                 'style' => $collection->getStyle(),
-                'created_at' => $collection->getCreated(),
-                'updated_at' => $collection->getUpdated(),
+                'created_at' => $collection->getCreated()->format('Y-m-d H:i:s'),
+                'updated_at' => $collection->getUpdated()->format('Y-m-d H:i:s'),
             ];
         }
 

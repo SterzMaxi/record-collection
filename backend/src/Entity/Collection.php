@@ -48,10 +48,15 @@ class Collection
     private string $style;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
+    #[Groups(['collection:read', 'collection:write'])]
     private DateTimeImmutable $created;
 
     #[ORM\Column(name: 'updated_at', type: 'datetime_immutable')]
+    #[Groups(['collection:read', 'collection:write'])]
     private DateTimeImmutable $updated;
+
+    #[ORM\OneToMany(targetEntity: Record::class, mappedBy: 'collection')]
+    private DoctrineCollection $records;
 
     public function getId(): ?int
     {

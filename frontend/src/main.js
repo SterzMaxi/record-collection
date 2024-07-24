@@ -4,7 +4,7 @@ import App from './App.vue'
 import router from './router/router.js'
 import createRouter from './router/router.js';
 import authentication from './plugins/KeycloakPlugin.js'
-import BootstrapVue from 'bootstrap-vue-3';
+import { BootstrapVue3 } from 'bootstrap-vue-3';
 
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -12,6 +12,8 @@ import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
 
 // Create the Vue app instance
 const app = createApp(App);
+
+app.use(BootstrapVue3);
 
 // Use the authentication plugin
 app.use(authentication);

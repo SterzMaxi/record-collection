@@ -1,54 +1,45 @@
 <template>
     <!doctype html>
-    <html>
-<div>
-  <b-navbar fixed = "top" toggleable="lg" type="dark" variant="dark">
-    <b-navbar-brand><RouterLink to="/">Record Digging</RouterLink></b-navbar-brand>
-      <!-- Right aligned nav items -->
-      <b-navbar-nav class="mx-auto">
-        <b-nav-form>
-          <b-form-input style="width: 30.33vw;" size="sm" class="mr-sm-2" placeholder="Suchen"></b-form-input>
-          <b-button size="sm" class="my-2 my-sm-0" type="submit">
-            <i class="bi bi-search"></i>
-            </b-button>
-        </b-nav-form>
-        </b-navbar-nav>
-        <b-navbar-nav>
-            <div v-if="isAuthenticated">
-          <b-nav-item-dropdown right>
-          <!-- Using 'button-content' slot -->
-          <template #button-content>
-            <em class="text-white">{{ username }}</em>
-          </template>
-          <b-dropdown-item><RouterLink to="/mycollections">Meine Collections</RouterLink></b-dropdown-item>
-          <b-dropdown-item @click="logout">Ausloggen</b-dropdown-item>
-        </b-nav-item-dropdown>
+  <html>
+    <div>
+      <nav class="navbar fixed-top navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
+        <div class="container-fluid">
+          <RouterLink to="/" class="navbar-brand mx-auto">Record Digging</RouterLink>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <form class="d-flex mx-auto" role="search">
+                <input class="form-control me-2" type="search" placeholder="Suchen" aria-label="Search">
+                <button class="btn btn-outline-light" type="submit"><i class="bi bi-search"></i></button>
+              </form>
+              <ul class="navbar-nav mb-2 mb-lg-0">
+                <div v-if="isAuthenticated">
+                  <li class="nav-item dropdown">
+                    <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      {{ username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                      <li><RouterLink to="/mycollections" class="dropdown-item">Meine Collections</RouterLink></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" type="button" @click="logout">Ausloggen</a></li>
+                    </ul>
+                  </li>
+                </div>
+                <div v-else>
+                  <button @click="login">Einloggen</button>
+                </div>
+              </ul>
+          </div>
         </div>
-        <div v-else>
-          <button @click="login">Einloggen</button>
-        </div>
-        </b-navbar-nav>
-  </b-navbar>
-</div>
-</html>
+      </nav>
+    </div>
+  </html>
 </template>
 
 <script setup>
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import keycloakplugin from '../plugins/KeycloakPlugin.js'
-import {
-  BNavbar,
-  BNavbarNav,
-  BNavbarBrand,
-  BNavbarToggle,
-  BCollapse,
-  BNavItem,
-  BNavForm,
-  BFormInput,
-  BButton,
-  BNavItemDropdown,
-  BDropdownItem
-} from 'bootstrap-vue-3';
 
 const props = defineProps({
   msg: String,

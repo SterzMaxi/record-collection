@@ -1,112 +1,138 @@
 <template>
   <div class="container-fluid p-0">
-      <b-card class="w-100 m-0 p-3">
-        <b-button v-b-toggle.collection-collapse variant="outline-dark">Erstelle Collection</b-button>
-        <b-collapse id ="collection-collapse" class="mt-2">
+      <div class="card w-100 m-0 p-3">
+        <div class="col-6 mx-auto">
+          <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionForm" aria-expanded="false" aria-controls="collapseCollectionForm">
+            Erstelle Collection
+          </button>
+        </div>
+        <div class="collapse" id="collapseCollectionForm">
           <form @submit.prevent="submitForm">
             <div>
               <label class="h3" for="collectionname">Collection Name:</label>
-              <input type="text" v-model="form.collectionname" class="form-control" required>
+              <input id="collectionname" type="text" v-model="form.collectionname" class="form-control" required>
             </div>
             <div>
               <label class="h5" for="style">Style:</label>
-              <input type="text" v-model="form.style" class="form-control" required>
+              <input id="style" type="text" v-model="form.style" class="form-control" required>
             </div>
 
-            <b-button class="mt-4" v-b-toggle.collection-collapse type="submit" variant="success">Erstellen</b-button>
+            <button class="mt-4 btn btn-success" type="submit" data-bs-toggle="collapse" data-bs-target="#collapseCollectionForm" aria-expanded="false" aria-controls="collapseCollectionForm">Erstellen</button>
           </form>
-        </b-collapse>
-          
-        </b-card>
+        </div>
+      </div>
       
-    </div>
+        
+    
     <div>
-      <b-card v-for="collection in sortedCollections" :key="collection.id" class="mb-2">
+      <div v-for="collection in sortedCollections" :key="collection.id" class="card mb-2">
         <h3>{{ collection.collectionname }}</h3>
         <h6>{{ collection.style }}</h6>
-        <b-button @click="deleteCollection(collection.id)" variant="danger">Delete</b-button>
-      </b-card>
+        <button type="button" class="btn btn-danger col-1 mx-auto"  data-bs-toggle="modal" data-bs-target="#DeleteModal" @click="setCollectionToDelete(collection.id)">Delete</button>
+
+<!-- Modal -->
+<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="DeleteModalLabel">Löschen?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>möchtest du wirklich <h4>{{ collection.collectionname }}</h4> löschen?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="confirmDeletion(collection.id)">Löschen</button>
+      </div>
     </div>
+  </div>
+</div>
+
+</div>
+      
+    </div>
+  </div>
   </template>
   
   <script setup>
+  import { ref, computed, onMounted } from 'vue';
   import axios from 'axios';
-  import { BButton, BCollapse, BCard, vBToggle } from 'bootstrap-vue-3';
 
-  </script>
+  const form = ref({
+  collectionname: '',
+  style: '',
+});
 
-  <script>
-  
-  export default {
-    data() {
-    return {
-      form: {
-        collectionname: '',
-        style: '',
+const collections = ref([]);
+const selectedCollectionId = ref(null);
+
+const fetchCollections = async () => {
+  try {
+    const response = await axios.get('/api/collections', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
+    });
+    collections.value = response.data;
+  } catch (error) {
+    console.error("There was an error fetching the collections:", error);
+  }
+};
+
+const sortedCollections = computed(() => {
+  if (!Array.isArray(collections.value)) {
+    return [];
+  }
+  return collections.value.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+});
+
+const submitForm = async () => {
+  const formData = new FormData();
+  Object.keys(form.value).forEach(key => {
+    if (form.value[key]) {
+      formData.append(key, form.value[key]);
+    }
+  });
+
+  try {
+    const response = await axios.post('/api/collection', formData, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+        'Content-Type': 'multipart/form-data',
       },
-      collections: [] // Array to hold collections data
-    };
-  },
-  computed: {
-    sortedCollections() {
-      // Sort collections by created_at in descending order
-      return this.collections.sort((a,b) => new Date(b.created_at) - new DataTransfer(a.created_at));
-    }
-  },
-  methods: {
-    async submitForm() {
-      const formData = new FormData();
-      Object.keys(this.form).forEach(key => {
-          if (this.form[key]) {
-            formData.append(key, this.form[key]);
-          }
+    });
+    console.log("axios post success");
+    console.log(response.data);
+    await fetchCollections(); // Refresh collections list after submission
+    // Clear the form
+    form.value.collectionname = '';
+    form.value.style = '';
+  } catch (error) {
+    console.error('Upload failed', error);
+  }
+};
+
+const setCollectionToDelete = (collectionId) => {
+  selectedCollectionId.value = collectionId;
+};
+
+// Confirm deletion of the collection
+const confirmDeletion = async () => {
+  if (selectedCollectionId.value) {
+    try {
+      await axios.delete(`/api/collection/${selectedCollectionId.value}`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
       });
-
-      try {
-        const response = await axios.post('/api/collection', formData, {
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
-            'Content-Type': 'multipart/form-data'
-          },
-        });
-        console.log("axios post success");
-        console.log(response.data);
-        this.fetchCollections(); // Refresh collections list after deletion
-      } catch (error) {
-        console.error('Upload failed', error);
-      }
-    },
-    fetchCollections() {
-      // Fetch collections from the server
-      axios.get('/api/collections', {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') }
-      })
-        .then(response => {
-          this.collections = response.data;
-        })
-        .catch(error => {
-          console.error("There was an error fetching the collections:", error);
-        });
-    },
-  deleteCollection(collectionId) {
-      // Delete a collection
-      axios.delete(`/api/collection/${collectionId}`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') }
-      })
-        .then(response => {
-          console.log("Collection deleted successfully:", response.data);
-          this.fetchCollections(); // Refresh collections list after deletion
-        })
-        .catch(error => {
-          console.error("There was an error deleting the collection:", error);
-        });
-      }
-    },
-  created() {
-    this.fetchCollections(); // Fetch collections when component is created
+      console.log("Collection deleted successfully");
+      await fetchCollections(); // Refresh collections list after deletion
+    } catch (error) {
+      console.error("There was an error deleting the collection:", error);
     }
-  };
+  }
+};
 
+onMounted(() => {
+  fetchCollections();
+});
 
 </script>
   
