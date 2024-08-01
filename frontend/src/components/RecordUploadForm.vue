@@ -1,72 +1,121 @@
 <template>
-    <div>
+  <div class="container-fluid p-0">
+    <div class="card w-100 p-3">
       <form @submit.prevent="submitForm">
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" v-model="form.title" required>
-      </div>
-      <div>
-        <label for="artist">Artist:</label>
-        <input type="text" v-model="form.artist" required>
-      </div>
-      <div>
-        <label for="format">Format:</label>
-        <input type="text" v-model="form.format" required>
-      </div>
-      <div>
-        <label for="trackcount">Track Anzahl:</label>
-        <input type="int" v-model="form.trackcount" required>
-      </div>
-      <div>
-        <label for="label">Label:</label>
-        <input type="text" v-model="form.label" required>
-      </div>
-      <div>
-        <label for="country">Land:</label>
-        <input type="text" v-model="form.country" required>
-      </div>
-      <div>
-        <label for="releasedate">Erscheinungsdatum:</label>
-        <input type="date" v-model="form.releasedate" required>
-      </div>
-      <div>
-        <label for="genre">Genre:</label>
-        <input type="text" v-model="form.genre" required>
-      </div>
-      <div>
-        <label for="price">Preis:</label>
-        <input type="number" v-model="form.price" required>
-      </div>
-      <div>
-        <label for="grade">Kondition:</label>
-        <input type="text" v-model="form.grade" required>
-      </div>
-
-      <div>
-        <label for="bookletfront">Booklet Front:</label>
-        <input type="file" @change="handleFileChange('bookletfront', $event)">
-      </div>
-      <div>
-        <label for="bookletback">Booklet Back:</label>
-        <input type="file" @change="handleFileChange('bookletback', $event)">
-      </div>
-
-      <button type="submit">Submit</button>
+        <div class="row mt-4">
+          <div class="col">
+            <label class="h5 w-100" for="title">Title:
+              <input type="text" size="100" class="form-control text-center" v-model="form.title" required>
+            </label>
+            </div>
+          <div class="col">
+            <label class="h5 w-100" for="artist">Artist:
+              <input type="text" size="100" class="form-control text-center" v-model="form.artist" required>
+            </label>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col">
+            <label class="h5 w-100" for="format">Format:
+              <select class="form-select" v-model="form.format" required>
+                <option value="12-Inch LP" class="text-center">12-Inch LP</option>
+                <option value="12-Inch EP" class="text-center">12-Inch EP</option>
+                <option value="12-Inch Single" class="text-center">12-Inch Single</option>
+                <option value="7-Inch Single" class="text-center">7-Inch Single</option>
+                <option value="10-Inch Record" class="text-center">10-Inch Record</option>
+              </select>
+            </label>
+          </div>
+          <div class="col">
+            <label class="h5 w-100" for="trackcount">Track Anzahl:
+              <input
+              type="number"
+              class="form-control text-center"
+              v-model.number="form.trackcount"
+              @input="emitValue"
+              required
+              />
+            </label>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col">
+            <label class="h5 w-100" for="label">Label:
+              <input type="text" size="100" class="form-control text-center" v-model="form.label" required>
+            </label>
+          </div>
+          <div class="col">
+            <label class="h5 w-100" for="country">Land:
+              <input type="text" size="100" class="form-control text-center" v-model="form.country" required>
+            </label>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col">
+            <label class="h5 w-100" for="releasedate">Erscheinungsdatum:
+              <input type="date" size="100" class="form-control text-center" v-model="form.releasedate" required>
+            </label>
+          </div>
+          <div class="col">
+            <label class="h5 w-100" for="genre">Genre:
+              <input type="text" size="100" class="form-control text-center" v-model="form.genre" required>
+            </label>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col">
+            <label class="h5 w-100" for="price">Preis:
+              <input type="number" size="100" class="form-control text-center" v-model="form.price" required>
+            </label>
+          </div>
+          <div class="col">
+            <label class="h5 w-100" for="grade">Kondition:
+              <select class="form-select" v-model="form.grade" required>
+                <option value="M" class="text-center">Mint (M)</option>
+                <option value="M-" class="text-center">Near Mint (NM/M-)</option>
+                <option value="VG+" class="text-center">Very Good Plus (VG+)</option>
+                <option value="VG" class="text-center">Very Good (VG)</option>
+                <option value="G+" class="text-center">Good Plus (G+)</option>
+                <option value="G" class="text-center">Good (G)</option>
+                <option value="P" class="text-center">Poor (P)</option>
+              </select>
+            </label> 
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col">
+            <label class="h5 w-100" for="bookletfront">Booklet Front:
+              <input type="file" size="100" class="form-control text-center" @change="handleFileChange('bookletfront', $event)">
+            </label>
+          </div>
+          <div class="col">
+            <label class="h5 w-100" for="bookletback">Booklet Back:
+              <input type="file" size="100" class="form-control text-center" @change="handleFileChange('bookletback', $event)">
+            </label>
+          </div>
+        </div>
     </form>
     </div>
+  </div>
   </template>
   
   <script>
   import axios from 'axios';
   
   export default {
+    props: {
+      trackcount: {
+        type: Number,
+        required: true,
+      },
+    },
     data() {
     return {
       form: {
         title: '',
         artist: '',
         format: '',
-        trackcount: 0,
+        trackcount: this.trackcount,
         label: '',
         country: '',
         releasedate: '',
@@ -78,7 +127,15 @@
       },
     };
   },
+  watch: {
+    trackcount(newValue) {
+      this.form.trackcount = newValue;
+    },
+  },
   methods: {
+    emitValue() {
+      this.$emit('update-value', this.form.trackcount);
+    },
     handleFileChange(field, event) {
       this.form[field] = event.target.files[0];
     },
@@ -111,3 +168,8 @@
 };
 </script>
   
+
+<style scoped>
+
+
+</style>

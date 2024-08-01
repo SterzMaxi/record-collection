@@ -40,6 +40,7 @@
 <script setup>
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import keycloakplugin from '../plugins/KeycloakPlugin.js'
+import 'bootstrap'
 
 const props = defineProps({
   msg: String,

@@ -24,7 +24,6 @@
   
   <script setup>
   import axios from 'axios';
-  import { BButton, BCollapse, BCard, vBToggle } from 'bootstrap-vue-3';
 
   </script>
 

@@ -17,15 +17,6 @@
     </div>
     </html>
   </template>
-  
-  <script setup>
-    
-
-
-    
-    
-    </script>
-
     <script>
     import CollectionUploadForm from '../components/CollectionUploadForm.vue';
     import CollectionShow from '../components/CollectionShow.vue';

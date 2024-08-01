@@ -43,6 +43,14 @@ const createRouterInstance = (keycloak) => {
         component: () => import('../views/MyCollections.vue')
       },
       {
+        path: '/createrecord',
+        name: 'CreateRecord',
+        meta: {
+          isAuthenticated: true
+        },
+        component: () => import('../views/CreateRecord.vue')
+      },
+      {
         path: '/unauthorized',
         name: 'Unauthorized',
         meta: {

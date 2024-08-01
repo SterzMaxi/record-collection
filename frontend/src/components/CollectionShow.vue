@@ -2,19 +2,29 @@
   <div class="container-fluid p-0">
       <div class="card w-100 m-0 p-3">
         <div class="col-6 mx-auto">
-          <button class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionForm" aria-expanded="false" aria-controls="collapseCollectionForm">
+          
+          <button @click="toggleCollapse" class="btn btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionForm" aria-expanded="false" aria-controls="collapseCollectionForm">
+            <div>
             Erstelle Collection
+            </div>
           </button>
+          <div>
+            <button @click="toggleCollapse" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCollectionForm" aria-expanded="false" aria-controls="collapseCollectionForm">
+              <i :class="isClicked ? 'bi bi-caret-up mb-4' : 'bi bi-caret-down'" style="font-size: 20px;"></i>
+            </button>
+            
+          </div>
         </div>
+        
         <div class="collapse" id="collapseCollectionForm">
           <form @submit.prevent="submitForm">
             <div>
               <label class="h3" for="collectionname">Collection Name:</label>
-              <input id="collectionname" type="text" v-model="form.collectionname" class="form-control" required>
+              <input id="collectionname" type="text" v-model="form.collectionname" class="form-control text-center" required>
             </div>
             <div>
               <label class="h5" for="style">Style:</label>
-              <input id="style" type="text" v-model="form.style" class="form-control" required>
+              <input id="style" type="text" v-model="form.style" class="form-control text-center" required>
             </div>
 
             <button class="mt-4 btn btn-success" type="submit" data-bs-toggle="collapse" data-bs-target="#collapseCollectionForm" aria-expanded="false" aria-controls="collapseCollectionForm">Erstellen</button>
@@ -28,7 +38,9 @@
       <div v-for="collection in sortedCollections" :key="collection.id" class="card mb-2">
         <h3>{{ collection.collectionname }}</h3>
         <h6>{{ collection.style }}</h6>
-        <button type="button" class="btn btn-danger col-1 mx-auto"  data-bs-toggle="modal" data-bs-target="#DeleteModal" @click="setCollectionToDelete(collection.id)">Delete</button>
+        <RecordCard />
+
+        <button type="button" class="btn btn-danger col-1 mx-auto"  data-bs-toggle="modal" data-bs-target="#DeleteModal" @click="setCollectionToDelete(collection.id)">Collection Löschen</button>
 
 <!-- Modal -->
 <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
@@ -54,10 +66,20 @@
     </div>
   </div>
   </template>
+
+  <script>
+    export default {
+      name: 'App',
+      components: {
+        RecordCard
+      },
+    };
+  </script>
   
   <script setup>
   import { ref, computed, onMounted } from 'vue';
   import axios from 'axios';
+  import RecordCard from '../components/RecordThumbnail.vue';
 
   const form = ref({
   collectionname: '',
@@ -66,6 +88,11 @@
 
 const collections = ref([]);
 const selectedCollectionId = ref(null);
+
+const isClicked = ref(false);
+const toggleCollapse = () => {
+  isClicked.value = !isClicked.value;
+};
 
 const fetchCollections = async () => {
   try {
