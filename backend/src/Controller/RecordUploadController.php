@@ -17,8 +17,14 @@ class RecordUploadController extends AbstractController
     public function createRecord(Request $request, EntityManagerInterface $em, #[CurrentUser] $user): Response
     {
         $collectionId = $request->request->get('collection_id');
+        if (!$collectionId) {
+            return new Response('Collection ID is missing', Response::HTTP_BAD_REQUEST);
+        }
+
         $collection = $em->getRepository(Collection::class)->find($collectionId);
-        
+        if (!$collection) {
+            return new Response('Collection not found', Response::HTTP_NOT_FOUND);
+        }
         if (!$collection) {
             return new Response('Collection not found', Response::HTTP_BAD_REQUEST);
         }
@@ -26,14 +32,13 @@ class RecordUploadController extends AbstractController
         $artist = $request->request->get('artist');
         $format = $request->request->get('format');
         $trackcount = $request->request->get('trackcount');
-        $tracktitle = $request->request->get('tracktitle');
-        $tracktime = $request->request->get('tracktime');
         $label = $request->request->get('label');
         $country = $request->request->get('country');
         $releasedate = $request->request->get('releasedate');
         $genre = $request->request->get('genre');
-        $collectionname = $request->request->get('collectionname');
+
         $price = $request->request->get('price');
+
         $listenlink = $request->request->get('listenlink');
         $grade = $request->request->get('grade');
 
@@ -60,6 +65,26 @@ class RecordUploadController extends AbstractController
             $bookletback->move($uploadDir, $bookletbackFilename);
         }
 
+        $releasedate = $request->request->get('releasedate');
+
+        // Check if releasedate is present and not empty
+        if (!$releasedate) {
+            return new Response('Release date is missing', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Attempt to create DateTime object
+        try {
+            $formattedDate = new \DateTime($releasedate);
+        } catch (\Exception $e) {
+            return new Response('Invalid date format', Response::HTTP_BAD_REQUEST);
+        }
+
+        $price = (float)$price;
+
+        error_log('Price value: ' . $price);
+        error_log('Price type: ' . gettype($price));
+
+
         $record = new Record(
             $collection,
             $title,
@@ -68,10 +93,9 @@ class RecordUploadController extends AbstractController
             (int)$trackcount,
             $label,
             $country,
-            new \DateTime($releasedate),
+            $formattedDate,
             $genre,
-            $collectionname,
-            (float)$price,
+            $price,
             $bookletfrontFilename,
             $bookletbackFilename,
             $grade
@@ -81,6 +105,44 @@ class RecordUploadController extends AbstractController
         $em->flush();
 
         return new Response('Record uploaded successfully', Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/records', name: 'api_get_records', methods: ['GET'])]
+    public function getRecords(EntityManagerInterface $em, SerializerInterface $serializer): Response
+    {
+        $records = $em->getRepository(Record::class)->findAll();
+        $jsonRecords = $serializer->serialize($records, 'json');
+        
+        return new Response($jsonRecords, Response::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
+
+    #[Route('/api/record/{id}', name: 'api_get_record', methods: ['GET'])]
+    public function getRecord(int $id, EntityManagerInterface $em, SerializerInterface $serializer): Response
+    {
+        $record = $em->getRepository(Record::class)->find($id);
+
+        if (!$record) {
+            return new Response('Record not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $jsonRecord = $serializer->serialize($record, 'json');
+
+        return new Response($jsonRecord, Response::HTTP_OK, ['Content-Type' => 'application/json']);
+    }
+
+    #[Route('/api/record/{id}', name: 'api_delete_record', methods: ['DELETE'])]
+    public function deleteRecord(int $id, EntityManagerInterface $em): Response
+    {
+        $record = $em->getRepository(Record::class)->find($id);
+
+        if (!$record) {
+            return new Response('Record not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $em->remove($record);
+        $em->flush();
+
+        return new Response('Record deleted successfully', Response::HTTP_NO_CONTENT);
     }
 }
 

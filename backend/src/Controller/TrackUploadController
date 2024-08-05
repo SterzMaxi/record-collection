@@ -1,0 +1,77 @@
+<?php
+namespace App\Controller;
+
+use App\Entity\Track;
+use App\Repository\TrackRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+
+class TrackUploadController extends AbstractController
+{
+    #[Route('/tracks', name: 'api_create_track', methods: ['POST'])]
+    public function createTrack(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $record = $entityManager->getRepository(Record::class)->find($data['record_id']);
+
+        if (!$record) {
+            return new JsonResponse(['message' => 'Record not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $track = new Track(
+            $record,
+            $data['artist'],
+            $data['tracknumber'],
+            $data['tracktitle'],
+            $data['tracktime'],
+            $data['genre'],
+            $data['listenlink']
+        );
+
+        $entityManager->persist($track);
+        $entityManager->flush();
+
+        return new JsonResponse($serializer->serialize($track, 'json'), Response::HTTP_CREATED, [], true);
+    }
+
+    #[Route('/tracks', name: 'api_get_tracks', methods: ['GET'])]
+    public function getTracks(TrackRepository $trackRepository, SerializerInterface $serializer): JsonResponse
+    {
+        $tracks = $trackRepository->findAll();
+
+        return new JsonResponse($serializer->serialize($tracks, 'json'), Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/tracks/{id}', name: 'api_get_track', methods: ['GET'])]
+    public function getTrack(int $id, TrackRepository $trackRepository, SerializerInterface $serializer): JsonResponse
+    {
+        $track = $trackRepository->find($id);
+
+        if (!$track) {
+            return new JsonResponse(['message' => 'Track not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse($serializer->serialize($track, 'json'), Response::HTTP_OK, [], true);
+    }
+
+    #[Route('/tracks/{id}', name: 'api_delete_track', methods: ['DELETE'])]
+    public function deleteTrack(int $id, TrackRepository $trackRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $track = $trackRepository->find($id);
+
+        if (!$track) {
+            return new JsonResponse(['message' => 'Track not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager->remove($track);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'Track deleted'], Response::HTTP_NO_CONTENT);
+    }
+}

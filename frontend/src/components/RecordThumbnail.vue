@@ -96,61 +96,25 @@
   </div>
         
       </div>
-      <RouterLink type="button" to="/createrecord" class="btn mx-auto col-1 mb-3 btn-primary">Record erstellen</RouterLink>
+      <h2>{{ collectionId }}</h2>
+      <RouterLink type="button" :to="{name: 'CreateRecord', params: { collectionId: collectionId } }" class="btn mx-auto col-1 mb-3 btn-primary">Record erstellen</RouterLink>
     </template>
     
-    <script setup>
+    <script>
     import { ref, computed, onMounted } from 'vue';
     import axios from 'axios';
-  
-      /*
-  const records = ref([]);
-  const selectedCollectionId = ref(null);
-  
 
-  const fetchRecords = async () => {
-    try {
-      const response = await axios.get('/api/records', {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
-      });
-      collections.value = response.data;
-    } catch (error) {
-      console.error("There was an error fetching the records:", error);
+    export default {
+      name: 'RecordThumbnail',
+      props: {
+      collectionId: {
+        type: Number,
+        required: true,
+      },
+    },
     }
-  };
-
-
   
-  const sortedRecords = computed(() => {
-    if (!Array.isArray(collections.value)) {
-      return [];
-    }
-    return records.value.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  });
   
-  const setCollectionToDelete = (collectionId) => {
-    selectedCollectionId.value = collectionId;
-  };
-  
-  // Confirm deletion of the collection
-  const confirmDeletion = async () => {
-    if (selectedCollectionId.value) {
-      try {
-        await axios.delete(`/api/collection/${selectedCollectionId.value}`, {
-          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
-        });
-        console.log("Collection deleted successfully");
-        await fetchCollections(); // Refresh collections list after deletion
-      } catch (error) {
-        console.error("There was an error deleting the collection:", error);
-      }
-    }
-  };
-  
-  onMounted(() => {
-    fetchRecords();
-  });
-    */
   </script>
     
   

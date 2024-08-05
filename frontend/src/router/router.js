@@ -1,13 +1,10 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
-import { getCurrentInstance } from 'vue';
-import Home from '../views/Home.vue'
+import { createWebHistory, createRouter } from 'vue-router';
+import Home from '../views/Home.vue';
 import { keycloak } from '../plugins/KeycloakPlugin';
-
 
 const createRouterInstance = (keycloak) => {
   const router = createRouter({
-
-    history: createMemoryHistory(),
+    history: createWebHistory(), // Changed to createWebHistory()
 
     routes: [
       {
@@ -43,8 +40,9 @@ const createRouterInstance = (keycloak) => {
         component: () => import('../views/MyCollections.vue')
       },
       {
-        path: '/createrecord',
+        path: '/createrecord/:collectionId', // Added :collectionId to the path
         name: 'CreateRecord',
+        props: route => ({ collectionId: Number(route.params.collectionId) }),
         meta: {
           isAuthenticated: true
         },
@@ -59,14 +57,10 @@ const createRouterInstance = (keycloak) => {
         component: () => import('../views/Unauthorized.vue')
       }
     ]
-
-  })
-
+  });
 
   router.beforeEach((to, from, next) => {
     if (to.meta.isAuthenticated) {
-      
-
       if (keycloak.authenticated) {
         next(); // The user is authenticated, proceed to the route
       } else {

@@ -1,8 +1,8 @@
 <template>
     <div class="container-fluid p-0">
       
-        <button @click="removeTrack" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
-        <form>
+        <button @click="handleRemoveTrack" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
+        <form @submit.prevent="submitForm">
         <div class="row mt-4">
             <div class="col">
                 <label class="h5 w-100" for="price">Artist:
@@ -39,54 +39,66 @@
                 </label>
             </div>
           </div>
+          <button type="submit" style="display: none;"></button> <!-- Hide the submit button -->
         </form>
     </div>
     </template>
     
     <script>
+    import { ref } from 'vue';
     import axios from 'axios';
     
     export default {
-      data() {
-      return {
-        form: {
-          artist: '',
-          title: '',
-          tracknumber: '',
-          time: '',
-          genre: '',
-          link: '',
-        },
-      };
+  props: {
+    removeTrack: {
+      type: Function,
+      required: true,
     },
-    methods: {
-        removeTrack() {
-            this.$emit("remove-track");
-        },
-        async submitForm() {
-            const formData = new FormData();
-            Object.keys(form.value).forEach(key => {
-                if (form.value[key]) {
-                formData.append(key, form.value[key]);
-                }
-            });
+  },
+  setup(props, { emit }) {
+    const form = ref({
+      artist: '',
+      title: '',
+      tracknumber: '',
+      time: '',
+      genre: '',
+      link: '',
+    });
 
-            try {
-                const response = await axios.post('/api/track', formData, {
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
-                    'Content-Type': 'multipart/form-data',
-                },
-                });
-                console.log("axios post success");
-                console.log(response.data);
-                await fetchCollections(); // Refresh collections list after submission
-            } catch (error) {
-                console.error('Upload failed', error);
-            }
-        }
-    }
-  };
+    const handleRemoveTrack = () => {
+      props.removeTrack(props.trackIndex);
+    };
+
+    const submitForm = async () => {
+  const formData = new FormData();
+  formData.append('artist', form.value.artist);
+  formData.append('title', form.value.title);
+  formData.append('tracknumber', form.value.tracknumber);
+  formData.append('time', form.value.time);
+  formData.append('genre', form.value.genre);
+  formData.append('link', form.value.link);
+
+  try {
+    const response = await axios.post('/api/track', formData, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log(`Track form submitted successfully for track ${props.trackIndex + 1}:`, response.data);
+    emit('submit-track', formData, props.trackIndex);
+  } catch (error) {
+    console.error(`Track form submission failed for track ${props.trackIndex + 1}:`, error);
+  }
+};
+
+    return {
+      form,
+      handleRemoveTrack,
+      submitForm,
+    };
+  },
+};
   </script>
     
 <style scoped>

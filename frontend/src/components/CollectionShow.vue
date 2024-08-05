@@ -38,8 +38,8 @@
       <div v-for="collection in sortedCollections" :key="collection.id" class="card mb-2">
         <h3>{{ collection.collectionname }}</h3>
         <h6>{{ collection.style }}</h6>
-        <RecordCard />
-
+        <RecordCard :collectionId="collection.id" />
+        <h2>{{ collection.id }}</h2>
         <button type="button" class="btn btn-danger col-1 mx-auto"  data-bs-toggle="modal" data-bs-target="#DeleteModal" @click="setCollectionToDelete(collection.id)">Collection Löschen</button>
 
 <!-- Modal -->

@@ -1,16 +1,19 @@
-
-
 <template>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      </head>
       <div>
         <h1 class="mt-5">
         Erstelle Record
       </h1>
       </div>
       
-      <RecordUploadForm :trackcount="trackcount" @update-value="updateTrackCount" />
+      <RecordUploadForm 
+        :collectionId="collectionId"
+        ref="recordUploadForm"
+        :trackcount="trackcount || 0" 
+        :onChange="updateTrackCount" 
+        @submit-record="handleRecordSubmit"
+      />
+
+      <h2>{{ collectionId }}</h2>
       
       <h1 class="mt-5">Tracks</h1>
       <div class="card w-100 p-3">
@@ -20,60 +23,116 @@
             <div v-for="(track, index) in tracks" :key="track.id">
                 <div class="card w-100 p-3 mt-3">
                     <h3>Track {{ index + 1 }}</h3>
-                    <TrackForm @remove-track="removeTrack(index)"/>
+                    <TrackForm 
+                      :trackIndex="index" 
+                      @submit-track="handleTrackSubmit"
+                      :removeTrack="removeTrack" 
+                    />
                 </div>
             </div>
         </div>
     </div>
-      <button type="submit" class="btn btn-primary mt-5" @click="submitForm">Erstellen</button>
+      <button type="submit" class="btn btn-primary mt-5" @click="submitAllForms">Erstellen</button>
     </template>
-      <script>
-        import RecordUploadForm from '../components/RecordUploadForm.vue';
-        import TrackForm from '../components/TrackForm.vue';    
+<script>
+import { ref } from 'vue';
+import axios from 'axios';   
+import RecordUploadForm from '../components/RecordUploadForm.vue';
+import TrackForm from '../components/TrackForm.vue';    
     
-      export default {
-        name: 'App',
-        components: {
-            RecordUploadForm,
-            TrackForm,
-        },
-        data() {
-            return {
-                trackcount:0,
-                tracks: [],
-            };
-        },
-        methods: {
-            updateTrackCount(newCount) {
-                this.trackcount = newCount;
-                this.adjustTrackList();
-            },
-            addTrack() {
-                this.tracks.push({id: Date.now()});
-                this.trackcount = this.tracks.length;
-            },
-            adjustTrackList() {
-                while (this.tracks.length < this.trackcount) {
-                    this.addTrack();
-                }
-                while (this.tracks.length > this.trackcount) {
-                    this.tracks.pop();
-                }
-            },
-            removeTrack(index) {
-                this.tracks.splice(index, 1);
-                this.trackcount = this.tracks.length;
-            },
-            submitForm() {
-                this.$refs.RecordUploadForm.submitForm();
-            },
-        },
-        watch: {
-            trackcount(newValue){
-                this.adjustTrackList();
-            },
-        },
-      };
+export default {
+  name: 'CreateRecord',
+  components: {
+    RecordUploadForm,
+    TrackForm,
+  },
+  props: {
+    collectionId: {
+      type: Number,
+      required: true
+    }
+  },
+  setup(props) {
+    const recordUploadForm = ref(null);
+    const trackForms = ref([]);
+
+    const trackcount = ref(0); // Initialize trackcount
+    const tracks = ref([]);
+    const recordFormData = ref(null);
+    const trackFormsData = ref([]);
+
+    const updateTrackCount = (newCount) => {
+        if(newCount > 50)
+        {
+            newCount = 50;
+        }
+      trackcount.value = newCount;
+      adjustTrackList();
+    };
+
+    const addTrack = () => {
+        if(tracks.value.length < 50) {
+            tracks.value.push({ id: Date.now() });
+            trackcount.value = tracks.value.length;
+        }
+    };
+
+    const adjustTrackList = () => {
+      while (tracks.value.length < trackcount.value) {
+        if(tracks.value.length < 50) {
+            tracks.value.push({ id: Date.now() });
+        }
+      }
+      while (tracks.value.length > trackcount.value) {
+        tracks.value.pop();
+      }
+    };
+
+    const removeTrack = (index) => {
+      tracks.value.splice(index, 1);
+      trackcount.value = tracks.value.length;
+      trackFormsData.value.splice(index, 1);
+    };
+
+    const handleRecordSubmit = (formData) => {
+      recordFormData.value = formData;
+      console.log("Record form data received:", formData);
+    };
+
+    const handleTrackSubmit = (formData, trackIndex) => {
+      trackFormsData.value[trackIndex] = formData;
+      console.log(`Track form data received for track ${trackIndex + 1}:`, formData);
+    };
+
+    const submitAllForms = () => {
+      // Submit record form
+      if (recordUploadForm.value) {
+        recordUploadForm.value.submitForm(); // Call submitForm method on RecordUploadForm
+      }
+
+      // Submit track forms
+      trackForms.value.forEach((trackForm, index) => {
+        if (trackForm) {
+          trackForm.submitForm(); // Call submitForm method on TrackForm
+        }
+      });
+    };
+
+    return {
+      recordUploadForm,
+      trackForms,
+      trackcount,
+      tracks,
+      updateTrackCount,
+      addTrack,
+      adjustTrackList,
+      removeTrack,
+      handleRecordSubmit,
+      handleTrackSubmit,
+      submitAllForms,
+    };
+  },
+};
     </script>
     
     <style scoped>

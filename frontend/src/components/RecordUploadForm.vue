@@ -7,7 +7,7 @@
             <label class="h5 w-100" for="title">Title:
               <input type="text" size="100" class="form-control text-center" v-model="form.title" required>
             </label>
-            </div>
+          </div>
           <div class="col">
             <label class="h5 w-100" for="artist">Artist:
               <input type="text" size="100" class="form-control text-center" v-model="form.artist" required>
@@ -33,6 +33,7 @@
               class="form-control text-center"
               v-model.number="form.trackcount"
               @input="emitValue"
+              :max="50"
               required
               />
             </label>
@@ -53,7 +54,7 @@
         <div class="row mt-4">
           <div class="col">
             <label class="h5 w-100" for="releasedate">Erscheinungsdatum:
-              <input type="date" size="100" class="form-control text-center" v-model="form.releasedate" required>
+              <VueDatePicker v-model="form.releasedate" :format="dateFormat" :bootstrap-styles="true" required />
             </label>
           </div>
           <div class="col">
@@ -65,7 +66,7 @@
         <div class="row mt-4">
           <div class="col">
             <label class="h5 w-100" for="price">Preis:
-              <input type="number" size="100" class="form-control text-center" v-model="form.price" required>
+              <input type="number" size="100" class="form-control text-center" v-model.number="form.price" step="0.01" required>
             </label>
           </div>
           <div class="col">
@@ -94,82 +95,135 @@
             </label>
           </div>
         </div>
-    </form>
+        <button type="submit" style="display: none;"></button> <!-- Hide the submit button -->
+      </form>
     </div>
   </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    props: {
-      trackcount: {
-        type: Number,
-        required: true,
-      },
-    },
-    data() {
-    return {
-      form: {
-        title: '',
-        artist: '',
-        format: '',
-        trackcount: this.trackcount,
-        label: '',
-        country: '',
-        releasedate: '',
-        genre: '',
-        price: 0,
-        bookletfront: null,
-        bookletback: null,
-        grade: '',
-      },
-    };
-  },
-  watch: {
-    trackcount(newValue) {
-      this.form.trackcount = newValue;
-    },
-  },
-  methods: {
-    emitValue() {
-      this.$emit('update-value', this.form.trackcount);
-    },
-    handleFileChange(field, event) {
-      this.form[field] = event.target.files[0];
-    },
-    async submitForm() {
-      const formData = new FormData();
-      Object.keys(this.form).forEach(key => {
-        if (key === 'bookletfront' || key === 'bookletback') {
-          if (this.form[key]) {
-            formData.append(key, this.form[key]);
-          }
-        } else {
-          formData.append(key, this.form[key]);
-        }
-      });
+</template>
 
-      try {
-        const response = await axios.post('api/record', formData, {
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
-            'Content-Type': 'multipart/form-data'
-          },
-        });
-        console.log("axios post success");
-        console.log(response.data);
-      } catch (error) {
-        console.error('Upload failed', error);
-      }
-    }
+<script>
+import { ref, watch } from 'vue';
+import axios from 'axios';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+
+export default {
+  components: {
+    VueDatePicker,
+  },
+  props: {
+    collectionId: {
+      type: Number,
+      required: true
+    },
+    trackcount: {
+      type: Number,
+      validator: (value) => !isNaN(value) && value !== null && value !== undefined && value !== "",
+      required: true,
+      default: 0,
+    },
+    onChange: {
+      type: Function,
+      required: true,
+    },
+  },
+  setup(props, { emit }) {
+    const form = ref({
+      title: '',
+      artist: '',
+      format: '',
+      trackcount: props.trackcount,
+      label: '',
+      country: '',
+      releasedate: '',
+      genre: '',
+      price: 0.0,
+      bookletfront: null,
+      bookletback: null,
+      grade: '',
+    });
+
+
+
+    const dateFormat = 'yyyy-mm-dd';
+
+    const handleFileChange = (field, event) => {
+      form.value[field] = event.target.files[0];
+    };
+
+    const emitValue = () => {
+      props.onChange(form.value.trackcount);
+    };
+
+    const submitForm = async () => {
+
+      
+
+
+  const formData = new FormData();
+  formData.append('collection_id', props.collectionId);
+  formData.append('title', form.value.title);
+  formData.append('artist', form.value.artist);
+  formData.append('format', form.value.format);
+  formData.append('trackcount', form.value.trackcount);
+  formData.append('label', form.value.label);
+  formData.append('country', form.value.country);
+
+  const formattedDate = new Date(form.value.releasedate).toISOString().split('T')[0];
+  formData.append('releasedate', formattedDate);
+
+  formData.append('genre', form.value.genre);
+
+  const price = form.value.price !== null && form.value.price !== undefined ? form.value.price.toString() : '0';
+  formData.append('price', price);
+
+  formData.append('grade', form.value.grade);
+  formData.append('bookletfront', form.value.bookletfront);
+  formData.append('bookletback', form.value.bookletback);
+
+
+  console.log('Form Data:', {
+      title: form.value.title,
+      artist: form.value.artist,
+      format: form.value.format,
+      trackcount: form.value.trackcount,
+      label: form.value.label,
+      country: form.value.country,
+      releasedate: formattedDate,
+      genre: form.value.genre,
+      price: price,
+      grade: form.value.grade
+    });
+
+  try {
+    const response = await axios.post('/api/record', formData, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log("Record form submitted successfully:", response.data);
+    emit('submit-record', formData);
+  } catch (error) {
+    console.error('Record form submission failed:', error);
   }
 };
+
+    watch(() => props.trackcount, (newValue) => {
+      form.value.trackcount = newValue;
+    });
+
+    return {
+      emitValue,
+      form,
+      dateFormat,
+      handleFileChange,
+      submitForm,
+    };
+  },
+};
 </script>
-  
 
 <style scoped>
-
-
+/* Optionally, you can add custom styles here */
 </style>
