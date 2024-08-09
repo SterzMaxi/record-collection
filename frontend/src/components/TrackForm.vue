@@ -11,19 +11,19 @@
             </div>
             <div class="col">
                 <label class="h5 w-100" for="price">Titel:
-                    <input type="text" class="form-control" v-model="form.title" required>
+                    <input type="text" class="form-control" v-model="form.tracktitle" required>
                 </label>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col">
                 <label class="h5 w-100" for="grade">Tracknummer:
-                    <input type="text" class="form-control" v-model="form.number" required>
+                    <input type="text" class="form-control" v-model="form.tracknumber" required>
                 </label>
             </div>
             <div class="col">
                 <label class="h5 w-100" for="grade">Zeit:
-                    <input type="text" class="form-control" v-model="form.time" required>
+                    <input type="text" class="form-control" v-model="form.tracktime" required>
                 </label>
             </div>
           </div>
@@ -35,7 +35,7 @@
             </div>
             <div class="col">
                 <label class="h5 w-100" for="grade">Link:
-                     <input type="text" class="form-control" v-model="form.link" required>
+                     <input type="text" class="form-control" v-model="form.listenlink" required>
                 </label>
             </div>
           </div>
@@ -50,6 +50,10 @@
     
     export default {
   props: {
+    recordId: {
+      type: Number,
+      required: true,
+    },
     removeTrack: {
       type: Function,
       required: true,
@@ -58,11 +62,11 @@
   setup(props, { emit }) {
     const form = ref({
       artist: '',
-      title: '',
+      tracktitle: '',
       tracknumber: '',
-      time: '',
+      tracktime: '',
       genre: '',
-      link: '',
+      listenlink: '',
     });
 
     const handleRemoveTrack = () => {
@@ -70,26 +74,37 @@
     };
 
     const submitForm = async () => {
-  const formData = new FormData();
-  formData.append('artist', form.value.artist);
-  formData.append('title', form.value.title);
-  formData.append('tracknumber', form.value.tracknumber);
-  formData.append('time', form.value.time);
-  formData.append('genre', form.value.genre);
-  formData.append('link', form.value.link);
+      const formData = new FormData();
+      formData.append('record_id', props.recordId);
+      formData.append('artist', form.value.artist);
+      formData.append('tracktitle', form.value.tracktitle);
+      formData.append('tracknumber', form.value.tracknumber);
+      formData.append('tracktime', form.value.tracktime);
+      formData.append('genre', form.value.genre);
+      formData.append('listenlink', form.value.listenlink);
 
-  try {
-    const response = await axios.post('/api/track', formData, {
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    console.log(`Track form submitted successfully for track ${props.trackIndex + 1}:`, response.data);
-    emit('submit-track', formData, props.trackIndex);
-  } catch (error) {
-    console.error(`Track form submission failed for track ${props.trackIndex + 1}:`, error);
-  }
+      console.log('Form Data:', {
+          record_id: props.recordId,
+          artist: form.value.artist,
+          tracktitle: form.value.tracktitle,
+          tracknumber: form.value.tracknumber,
+          tracktime: form.value.tracktime,
+          genre: form.value.genre,
+          listenlink: form.value.listenlink
+        });
+
+    try {
+      const response = await axios.post('/api/track', formData, {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(`Track form submitted successfully for track:`, response.data);
+      emit('submit-track', formData);
+    } catch (error) {
+      console.error(`Track form submission failed for track`, error);
+    }
 };
 
     return {

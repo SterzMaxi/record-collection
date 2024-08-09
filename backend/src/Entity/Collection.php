@@ -55,7 +55,7 @@ class Collection
     #[Groups(['collection:read', 'collection:write'])]
     private DateTimeImmutable $updated;
 
-    #[ORM\OneToMany(targetEntity: Record::class, mappedBy: 'collection')]
+    #[ORM\OneToMany(mappedBy: 'collection', targetEntity: Record::class, cascade: ['remove'], orphanRemoval: true)]
     private DoctrineCollection $records;
 
     public function getId(): ?int
@@ -103,6 +103,14 @@ class Collection
         if (!$this->records->contains($record)) {
             $this->records->add($record);
             $record->setCollection($this);
+        }
+    }
+
+    public function removeRecord(Record $record): void
+    {
+        if ($this->records->contains($record)) {
+            $this->records->removeElement($record);
+            $record->setCollection(null);
         }
     }
 

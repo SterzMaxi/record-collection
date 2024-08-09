@@ -144,7 +144,6 @@ export default {
     });
 
 
-
     const dateFormat = 'yyyy-mm-dd';
 
     const handleFileChange = (field, event) => {
@@ -157,56 +156,54 @@ export default {
 
     const submitForm = async () => {
 
-      
+      const formData = new FormData();
+      formData.append('collection_id', props.collectionId);
+      formData.append('title', form.value.title);
+      formData.append('artist', form.value.artist);
+      formData.append('format', form.value.format);
+      formData.append('trackcount', form.value.trackcount);
+      formData.append('label', form.value.label);
+      formData.append('country', form.value.country);
+
+      const formattedDate = new Date(form.value.releasedate).toISOString().split('T')[0];
+      formData.append('releasedate', formattedDate);
+
+      formData.append('genre', form.value.genre);
+
+      const price = form.value.price !== null && form.value.price !== undefined ? form.value.price.toString() : '0';
+      formData.append('price', price);
+
+      formData.append('grade', form.value.grade);
+      formData.append('bookletfront', form.value.bookletfront);
+      formData.append('bookletback', form.value.bookletback);
 
 
-  const formData = new FormData();
-  formData.append('collection_id', props.collectionId);
-  formData.append('title', form.value.title);
-  formData.append('artist', form.value.artist);
-  formData.append('format', form.value.format);
-  formData.append('trackcount', form.value.trackcount);
-  formData.append('label', form.value.label);
-  formData.append('country', form.value.country);
+      console.log('Form Data:', {
+          title: form.value.title,
+          artist: form.value.artist,
+          format: form.value.format,
+          trackcount: form.value.trackcount,
+          label: form.value.label,
+          country: form.value.country,
+          releasedate: formattedDate,
+          genre: form.value.genre,
+          price: price,
+          grade: form.value.grade
+        });
 
-  const formattedDate = new Date(form.value.releasedate).toISOString().split('T')[0];
-  formData.append('releasedate', formattedDate);
-
-  formData.append('genre', form.value.genre);
-
-  const price = form.value.price !== null && form.value.price !== undefined ? form.value.price.toString() : '0';
-  formData.append('price', price);
-
-  formData.append('grade', form.value.grade);
-  formData.append('bookletfront', form.value.bookletfront);
-  formData.append('bookletback', form.value.bookletback);
-
-
-  console.log('Form Data:', {
-      title: form.value.title,
-      artist: form.value.artist,
-      format: form.value.format,
-      trackcount: form.value.trackcount,
-      label: form.value.label,
-      country: form.value.country,
-      releasedate: formattedDate,
-      genre: form.value.genre,
-      price: price,
-      grade: form.value.grade
-    });
-
-  try {
-    const response = await axios.post('/api/record', formData, {
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    console.log("Record form submitted successfully:", response.data);
-    emit('submit-record', formData);
-  } catch (error) {
-    console.error('Record form submission failed:', error);
-  }
+      try {
+        const response = await axios.post('/api/record', formData, {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        const recordId = response.data.id;
+        console.log('Record created successfully with ID:', recordId);
+        emit('submit-record', recordId);
+      } catch (error) {
+        console.error('Record form submission failed:', error);
+      }
 };
 
     watch(() => props.trackcount, (newValue) => {

@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\RecordRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RecordRepository::class)]
@@ -55,6 +57,7 @@ class Record
         $this->bookletfront = $bookletfront;
         $this->bookletback = $bookletback;
         $this->grade = $grade;
+        $this->tracks = new ArrayCollection();
      }
 
 
@@ -108,6 +111,9 @@ class Record
 
     #[ORM\Column(name: 'updated_at', type: 'datetime_immutable')]
     private DateTimeImmutable $updated;
+
+    #[ORM\OneToMany(mappedBy: 'record', targetEntity: Track::class, cascade: ['remove'], orphanRemoval: true)]
+    private DoctrineCollection $tracks;
 
     public function getId(): ?int
     {
@@ -257,6 +263,32 @@ class Record
     public function setUpdated(): void
     {
         $this->updated = new DateTimeImmutable();
+    }
+
+    public function getUpdated(): DateTimeImmutable
+    {
+        return $this->updated;
+    }
+
+    public function getTracks(): DoctrineCollection
+    {
+        return $this->tracks;
+    }
+
+    public function addTrack(Track $track): void
+    {
+        if (!$this->tracks->contains($track)) {
+            $this->tracks->add($track);
+            $track->setRecord($this);
+        }
+    }
+
+    public function removeTrack(Track $track): void
+    {
+        if ($this->tracks->contains($track)) {
+            $this->tracks->removeElement($track);
+            $track->setRecord(null);
+        }
     }
     
 

@@ -39,7 +39,6 @@
         <h3>{{ collection.collectionname }}</h3>
         <h6>{{ collection.style }}</h6>
         <RecordCard :collectionId="collection.id" />
-        <h2>{{ collection.id }}</h2>
         <button type="button" class="btn btn-danger col-1 mx-auto"  data-bs-toggle="modal" data-bs-target="#DeleteModal" @click="setCollectionToDelete(collection.id)">Collection Löschen</button>
 
 <!-- Modal -->
@@ -153,6 +152,7 @@ const confirmDeletion = async () => {
       await fetchCollections(); // Refresh collections list after deletion
     } catch (error) {
       console.error("There was an error deleting the collection:", error);
+      alert("Failed to delete the collection. Please try again.");
     }
   }
 };

@@ -139,7 +139,7 @@ class Track
         $this->genre = $genre;
     }
 
-    public function getLitenLink(): string
+    public function getListenLink(): string
     {
         return $this->listenlink;
     }
