@@ -56,7 +56,7 @@ const createRouterInstance = (keycloak) => {
           recordId: Number(route.params.recordId),
         }),
         meta: {
-          isAuthenticated: true
+          isAuthenticated: false
         },
         component: () => import('../views/ShowRecord.vue')
       },

@@ -29,7 +29,7 @@ class Record
      * @param string $grade
      */
 
-     public function __construct(
+    public function __construct(
         Collection $collection,
         string $title,
         string $artist,
@@ -43,7 +43,7 @@ class Record
         string $bookletfront,
         string $bookletback,
         string $grade
-     ){
+    ) {
         $this->collection = $collection;
         $this->title = $title;
         $this->artist = $artist;
@@ -58,7 +58,7 @@ class Record
         $this->bookletback = $bookletback;
         $this->grade = $grade;
         $this->tracks = new ArrayCollection();
-     }
+    }
 
 
     #[ORM\Id]
@@ -290,6 +290,6 @@ class Record
             $track->setRecord(null);
         }
     }
-    
+
 
 }

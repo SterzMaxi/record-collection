@@ -38,9 +38,18 @@
       <div v-for="collection in sortedCollections" :key="collection.id" class="card mb-2">
         <h3>{{ collection.collectionname }}</h3>
         <h6>{{ collection.style }}</h6>
-        <RecordCard :collectionId="collection.id" />
-        <button type="button" class="btn btn-danger col-1 mx-auto"  data-bs-toggle="modal" data-bs-target="#DeleteModal" @click="setCollectionToDelete(collection.id)">Collection Löschen</button>
-
+        <div class="hover-enabled">
+          <RecordCard :collectionId="collection.id" />
+        </div>
+        <button
+          type="button"
+          class="btn btn-danger position-absolute top-0 end-0 m-2"
+          data-bs-toggle="modal"
+          data-bs-target="#DeleteModal"
+          @click="setCollectionToDelete(collection.id)"
+        >
+          <i class="bi bi-trash"></i>
+        </button>
 <!-- Modal -->
 <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -50,7 +59,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>möchtest du wirklich <h4>{{ collection.collectionname }}</h4> löschen?</p>
+        <p>möchtest du wirklich die Collection <h4>{{ collection.collectionname }}</h4> löschen?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
@@ -60,6 +69,10 @@
   </div>
 </div>
 
+<RouterLink :to="{ name: 'CreateRecord', params: { collectionId: collection.id } }">
+        <button type="button" class="btn mb-3 btn-primary mt-5">Record erstellen</button>
+    </RouterLink>
+
 </div>
       
     </div>
@@ -68,7 +81,7 @@
 
   <script>
     export default {
-      name: 'App',
+      name: 'CollectionShow',
       components: {
         RecordCard
       },

@@ -1,9 +1,22 @@
 security:
     firewalls:
-        main:
+        # Public API routes without authentication
+        public_api:
+            pattern: ^/api/(allcollections|collection/\d+/records|collection/\d+/record/\d+|collection/\d+/record/\d+/tracks)
+            stateless: true
+            security: false # Disable security for this firewall
+
+        # Secured API routes with authentication
+        api:
+            pattern: ^/api
             lazy: true
             stateless: true
             custom_authenticators:
                 - App\Security\KeycloakAuthenticator
+
     access_control:
+        # Allow access to /api/allcollections for everyone
+        - { path: ^/api/(allcollections|collection/\d+/records|collection/\d+/record/\d+|collection/\d+/record/\d+/tracks), roles: IS_AUTHENTICATED_ANONYMOUSLY }
+
+        # All other /api routes require authentication
         - { path: ^/api, roles: ROLE_USER }

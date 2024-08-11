@@ -1,11 +1,6 @@
 
 
 <template>
-  <!doctype html>
-  <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    </head>
     <div>
       <h1 class="mt-5">
       Meine Collections
@@ -15,7 +10,6 @@
     <div>
       <CollectionShow />
     </div>
-    </html>
   </template>
     <script>
     import CollectionUploadForm from '../components/CollectionUploadForm.vue';

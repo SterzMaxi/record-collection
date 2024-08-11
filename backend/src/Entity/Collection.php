@@ -20,16 +20,16 @@ class Collection
      * @param string $style
      */
 
-     public function __construct(
+    public function __construct(
         User $user,
         string $collectionname,
         string $style
-     ){
+    ) {
         $this->user = $user;
         $this->collectionname = $collectionname;
         $this->style = $style;
         $this->records = new ArrayCollection();
-     }
+    }
 
 
     #[ORM\Id]
@@ -137,6 +137,6 @@ class Collection
         return $this->updated;
     }
 
-    
+
 
 }

@@ -31,6 +31,11 @@ class KeycloakAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
+        if ($request->getPathInfo() === '/api/allcollections') {
+            return false;
+        }
+    
+        // Otherwise, check for the Authorization header
         return $request->headers->has('Authorization');
     }
 

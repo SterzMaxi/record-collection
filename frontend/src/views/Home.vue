@@ -1,19 +1,21 @@
-<script setup>
-</script>
-
 <template>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  </head>
 <div>
-  <h1 class="mt-5">
-    Home
-  </h1>
+  <DisplayAllCollections />
 </div>
   
 </template>
 
+<script>
+  import DisplayAllCollections from '../components/DisplayAllCollections.vue';
 
+
+export default {
+  name: 'HomeView',
+  components: {
+    DisplayAllCollections,
+  },
+};
+</script>
 
 <style scoped>
 .read-the-docs {

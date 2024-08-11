@@ -35,6 +35,7 @@
     </template>
 <script>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'
 import axios from 'axios';   
 import RecordUploadForm from '../components/RecordUploadForm.vue';
 import TrackForm from '../components/TrackForm.vue';    
@@ -52,6 +53,9 @@ export default {
     }
   },
   setup(props) {
+    const router = useRouter();
+
+
     const recordUploadForm = ref(null);
     const recordId = ref(0);
     const trackForms = ref([]);
@@ -99,30 +103,27 @@ export default {
       trackFormsData.value.splice(index, 1);
     };
 
-    /*
-    const handleRecordSubmit = (response) => {
-      console.log('Record form data received:', formData);
-      recordId = response.data.id;
-    };
-
-    const handleTrackSubmit = (formData, trackIndex) => {
-      trackFormsData.value[trackIndex] = formData;
-      console.log(`Track form data received for track ${trackIndex + 1}:`, formData);
-    };
-*/
     const submitAllForms = async () => {
+      try {
       // Submit record form
       if (recordUploadForm.value) {
         await recordUploadForm.value.submitForm(); // Call submitForm method on RecordUploadForm
       }
 
       // Submit track forms
-      trackForms.value.forEach((trackForm, index) => {
-        if (trackForm) {
-          trackForm.submitForm(recordId.value); // Call submitForm method on TrackForm
-        }
-      });
-    };
+    await Promise.all(trackForms.value.map(async (trackForm, index) => {
+      if (trackForm) {
+        await trackForm.submitForm(recordId.value); // Call submitForm method on TrackForm
+      }
+    }));
+
+    // After all forms are successfully submitted, navigate to MyCollection.vue
+    router.push({ name: 'MyCollections' }); // Replace 'MyCollection' with your actual route name
+  } catch (error) {
+    console.error('Error submitting forms:', error);
+    // Handle errors as needed
+  }
+};
 
     return {
       recordUploadForm,
