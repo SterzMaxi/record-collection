@@ -65,6 +65,8 @@ class KeycloakAuthenticator extends AbstractAuthenticator
                     $this->entityManager->flush();
                 }
 
+                $userId = $user->getId();
+
                 return $user;
             })
         );

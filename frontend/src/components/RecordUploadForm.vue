@@ -28,14 +28,8 @@
           </div>
           <div class="col">
             <label class="h5 w-100" for="trackcount">Track Anzahl:
-              <input
-              type="number"
-              class="form-control text-center"
-              v-model.number="form.trackcount"
-              @input="emitValue"
-              :max="50"
-              required
-              />
+              <input type="number" class="form-control text-center" v-model.number="form.trackcount" @input="emitValue"
+                :max="50" required />
             </label>
           </div>
         </div>
@@ -66,7 +60,8 @@
         <div class="row mt-4">
           <div class="col">
             <label class="h5 w-100" for="price">Preis:
-              <input type="number" size="100" class="form-control text-center" v-model.number="form.price" step="0.01" required>
+              <input type="number" size="100" class="form-control text-center" v-model.number="form.price" step="0.01"
+                required>
             </label>
           </div>
           <div class="col">
@@ -80,18 +75,20 @@
                 <option value="G" class="text-center">Good (G)</option>
                 <option value="P" class="text-center">Poor (P)</option>
               </select>
-            </label> 
+            </label>
           </div>
         </div>
         <div class="row mt-4">
           <div class="col">
             <label class="h5 w-100" for="bookletfront">Booklet Front:
-              <input type="file" size="100" class="form-control text-center" @change="handleFileChange('bookletfront', $event)">
+              <input type="file" size="100" class="form-control text-center"
+                @change="handleFileChange('bookletfront', $event)">
             </label>
           </div>
           <div class="col">
             <label class="h5 w-100" for="bookletback">Booklet Back:
-              <input type="file" size="100" class="form-control text-center" @change="handleFileChange('bookletback', $event)">
+              <input type="file" size="100" class="form-control text-center"
+                @change="handleFileChange('bookletback', $event)">
             </label>
           </div>
         </div>
@@ -125,6 +122,14 @@ export default {
     onChange: {
       type: Function,
       required: true,
+    },
+    record: {
+      type: Object,
+      default: () => ({})
+    },
+    isEditMode: {
+      type: Boolean,
+      default: false
     },
   },
   setup(props, { emit }) {
@@ -179,36 +184,64 @@ export default {
 
 
       console.log('Form Data:', {
-          title: form.value.title,
-          artist: form.value.artist,
-          format: form.value.format,
-          trackcount: form.value.trackcount,
-          label: form.value.label,
-          country: form.value.country,
-          releasedate: formattedDate,
-          genre: form.value.genre,
-          price: price,
-          grade: form.value.grade
-        });
+        title: form.value.title,
+        artist: form.value.artist,
+        format: form.value.format,
+        trackcount: form.value.trackcount,
+        label: form.value.label,
+        country: form.value.country,
+        releasedate: formattedDate,
+        genre: form.value.genre,
+        price: price,
+        grade: form.value.grade
+      });
 
       try {
-        const response = await axios.post('/api/record', formData, {
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        const recordId = response.data.id;
-        console.log('Record created successfully with ID:', recordId);
-        emit('submit-record', recordId);
+        if (props.isEditMode) {
+          // Perform an update
+          await axios.put(`/api/record/${props.record.id}`, formData, {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          console.log('Record updated successfully');
+        } else {
+          // Perform a create
+          const response = await axios.post('/api/record', formData, {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          console.log('Record created successfully with ID:', response.data.id);
+        }
+        emit('submit-record');
       } catch (error) {
-        console.error('Record form submission failed:', error);
+        console.error('Form submission failed:', error);
       }
-};
+    };
 
     watch(() => props.trackcount, (newValue) => {
       form.value.trackcount = newValue;
     });
+
+
+    watch(() => props.record, (newRecord) => {
+      if (props.isEditMode) {
+        form.value.title = newRecord.title || '';
+        form.value.artist = newRecord.artist || '';
+        form.value.format = newRecord.format || '';
+        form.value.trackcount = newRecord.trackcount || 0;
+        form.value.label = newRecord.label || '';
+        form.value.country = newRecord.country || '';
+        form.value.releasedate = newRecord.releasedate || '';
+        form.value.genre = newRecord.genre || '';
+        form.value.price = newRecord.price || 0.0;
+        form.value.grade = newRecord.grade || '';
+        // Handle booklet images if they exist
+      }
+    }, { immediate: true });
 
     return {
       emitValue,

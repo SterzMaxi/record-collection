@@ -45,6 +45,7 @@ class CollectionUploadController extends AbstractController
                 'created_at' => $collection->getCreated()->format('Y-m-d H:i:s'),
                 'updated_at' => $collection->getUpdated()->format('Y-m-d H:i:s'),
                 'username' => $user->getEmail(),
+                'userId' => $collection->getUser()->getId(),
                 'records' => $recordsData,
             ];
         }
@@ -79,12 +80,47 @@ class CollectionUploadController extends AbstractController
                 'id' => $collection->getId(),
                 'collectionname' => $collection->getCollectionName(),
                 'style' => $collection->getStyle(),
+                'userId' => $collection->getUser()->getId(),
                 'created_at' => $collection->getCreated()->format('Y-m-d H:i:s'),
                 'updated_at' => $collection->getUpdated()->format('Y-m-d H:i:s'),
             ];
         }
 
         return new JsonResponse($data, Response::HTTP_OK);
+    }
+
+    #[Route('/api/collection/{id}', name: 'api_update_collection', methods: ['PUT'])]
+    public function updateCollection(int $id, Request $request, CollectionRepository $collectionRepository, EntityManagerInterface $em): JsonResponse
+    {
+        $collection = $collectionRepository->find($id);
+
+        if (!$collection) {
+            return new JsonResponse(['error' => 'Collection not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        // Get new values from the request
+        $collectionname = $data['collectionname'] ?? null;
+        $style = $data['style'] ?? null;
+
+        // Update the collection fields if they are provided
+        if ($collectionname) {
+            $collection->setCollectionName($collectionname);
+        }
+
+        if ($style) {
+            $collection->setStyle($style);
+        }
+
+        // Update the updated_at field
+        $collection->setUpdated();
+
+        // Persist changes to the database
+        $em->persist($collection);
+        $em->flush();
+
+        return new JsonResponse(['message' => 'Collection updated successfully'], Response::HTTP_OK);
     }
 
     #[Route('/api/collection/{id}', name: 'api_delete_collection', methods: ['DELETE'])]

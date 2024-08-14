@@ -48,6 +48,7 @@ const props = defineProps({
 
 const count = ref(0)
 const username = ref('');
+const userId = ref('');
 
 const { proxy } = getCurrentInstance();
 const keycloak = proxy.$keycloak;
