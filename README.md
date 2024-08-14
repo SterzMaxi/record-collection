@@ -7,7 +7,7 @@ This project is a web application that allows users to log in using Keycloak, se
 ## Features
 
 - **User Authentication**: Integrated with Keycloak for secure login and logout.
-- **Responsive Design**: Built with BootstrapVue to ensure a seamless experience on all devices.
+- **Responsive Design**: Built with Bootstrap to ensure a seamless experience on all devices.
 - **Modern Frontend**: Developed using Vue 3 with Vite for fast hot module replacement (HMR) and a smooth development workflow.
 - **Backend**: Powered by Symfony, providing a robust and scalable backend solution.
 
@@ -16,7 +16,7 @@ This project is a web application that allows users to log in using Keycloak, se
 - **Frontend**:
   - Vue 3
   - Vite
-  - BootstrapVue
+  - Bootstrap
 - **Backend**:
   - Symfony
   - Docker
@@ -106,7 +106,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Acknowledgements
 Vue.js
 Vite
-BootstrapVue
+Bootstrap
 Symfony
 Keycloak
 Docker
