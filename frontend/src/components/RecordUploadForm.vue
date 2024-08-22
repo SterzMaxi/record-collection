@@ -99,10 +99,11 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import { useRoute } from 'vue-router';
 
 export default {
   components: {
@@ -111,7 +112,7 @@ export default {
   props: {
     collectionId: {
       type: Number,
-      required: true
+      required: true,
     },
     trackcount: {
       type: Number,
@@ -124,6 +125,10 @@ export default {
       required: true,
     },
     record: {
+      type: Object,
+      default: () => ({})
+    },
+    newRecord: {
       type: Object,
       default: () => ({})
     },
@@ -148,6 +153,10 @@ export default {
       grade: '',
     });
 
+    const route = useRoute();
+    const recordId = route.params.recordId;
+    console.log('Record ID from route:', recordId);
+
 
     const dateFormat = 'yyyy-mm-dd';
 
@@ -159,89 +168,138 @@ export default {
       props.onChange(form.value.trackcount);
     };
 
-    const submitForm = async () => {
-
-      const formData = new FormData();
-      formData.append('collection_id', props.collectionId);
-      formData.append('title', form.value.title);
-      formData.append('artist', form.value.artist);
-      formData.append('format', form.value.format);
-      formData.append('trackcount', form.value.trackcount);
-      formData.append('label', form.value.label);
-      formData.append('country', form.value.country);
-
-      const formattedDate = new Date(form.value.releasedate).toISOString().split('T')[0];
-      formData.append('releasedate', formattedDate);
-
-      formData.append('genre', form.value.genre);
-
-      const price = form.value.price !== null && form.value.price !== undefined ? form.value.price.toString() : '0';
-      formData.append('price', price);
-
-      formData.append('grade', form.value.grade);
-      formData.append('bookletfront', form.value.bookletfront);
-      formData.append('bookletback', form.value.bookletback);
-
-
-      console.log('Form Data:', {
-        title: form.value.title,
-        artist: form.value.artist,
-        format: form.value.format,
-        trackcount: form.value.trackcount,
-        label: form.value.label,
-        country: form.value.country,
-        releasedate: formattedDate,
-        genre: form.value.genre,
-        price: price,
-        grade: form.value.grade
-      });
-
+    const fetchRecords = async () => {
       try {
+        const response = await axios.get(`/api/collection/${props.collectionId}/record/${recordId}`, {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
+        });
+        const record = response.data;
+        form.value.title = record.title || '';
+        form.value.artist = record.artist || '';
+        form.value.format = record.format || '';
+        form.value.trackcount = record.trackcount || 0;
+        form.value.label = record.label || '';
+        form.value.country = record.country || '';
+        form.value.releasedate = record.releasedate || '';
+        form.value.genre = record.genre || '';
+        form.value.price = record.price || 0.0;
+        form.value.grade = record.grade || '';
+        form.value.bookletfront = record.bookletfront || null;
+        form.value.bookletback = record.bookletback || null;
+
+        emitValue();
+      } catch (error) {
+        console.error("There was an error fetching the collections:", error);
+      }
+    };
+
+
+    const submitForm = async () => {
+      try {
+
+
         if (props.isEditMode) {
-          // Perform an update
-          await axios.put(`/api/record/${props.record.id}`, formData, {
+          const jsonData = {
+          title: form.value.title,
+          artist: form.value.artist,
+          format: form.value.format,
+          trackcount: form.value.trackcount,
+          label: form.value.label,
+          country: form.value.country,
+          releasedate: form.value.releasedate,
+          genre: form.value.genre,
+          price: form.value.price,
+          grade: form.value.grade,
+        };
+
+        
+          await axios.put(`/api/collection/${props.collectionId}/record/${recordId}`, jsonData, {
             headers: {
               'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
-              'Content-Type': 'multipart/form-data',
+              'Content-Type': 'application/json',
             },
           });
           console.log('Record updated successfully');
+          
+          // 2. Send files via POST
+          const formData = new FormData();
+          if (form.value.bookletfront) {
+            formData.append('bookletfront', form.value.bookletfront);
+          }
+          if (form.value.bookletback) {
+            formData.append('bookletback', form.value.bookletback);
+          }
+
+          if (formData.has('bookletfront') || formData.has('bookletback')) {
+            await axios.post(`/api/collection/${props.collectionId}/record/${recordId}/upload-files`, formData, {
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
+                'Content-Type': 'multipart/form-data',
+              },
+            });
+            console.log('Files uploaded successfully');
+          }
         } else {
-          // Perform a create
+
+          const formData = new FormData();
+
+          // Append non-file fields
+          formData.append('collection_id', props.collectionId);
+          formData.append('title', form.value.title);
+          formData.append('artist', form.value.artist);
+          formData.append('format', form.value.format);
+          formData.append('trackcount', form.value.trackcount);
+          formData.append('label', form.value.label);
+          formData.append('country', form.value.country);
+
+          const formattedDate = new Date(form.value.releasedate).toISOString().split('T')[0];
+          formData.append('releasedate', formattedDate);
+
+          formData.append('genre', form.value.genre);
+
+          const price = form.value.price !== null && form.value.price !== undefined ? form.value.price.toString() : '0';
+          formData.append('price', price);
+
+          formData.append('grade', form.value.grade);
+
+          if (form.value.bookletfront) {
+            formData.append('bookletfront', form.value.bookletfront);
+          }
+          if (form.value.bookletback) {
+            formData.append('bookletback', form.value.bookletback);
+          }
+          // POST request to create a new record
           const response = await axios.post('/api/record', formData, {
             headers: {
               'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
               'Content-Type': 'multipart/form-data',
             },
           });
-          console.log('Record created successfully with ID:', response.data.id);
+
+          // Emit the created record ID to the parent component
+          const createdRecordId = response.data?.id;
+          if (createdRecordId) {
+            console.log('Record created successfully with ID:', createdRecordId);
+            emit('submit-record', createdRecordId);
+          } else {
+            console.error('Record ID is missing in the response:', response);
+          }
         }
-        emit('submit-record');
       } catch (error) {
         console.error('Form submission failed:', error);
       }
     };
 
+    onMounted(() => {
+      if (props.isEditMode) {
+        fetchRecords();
+      }
+
+    });
+
     watch(() => props.trackcount, (newValue) => {
       form.value.trackcount = newValue;
     });
-
-
-    watch(() => props.record, (newRecord) => {
-      if (props.isEditMode) {
-        form.value.title = newRecord.title || '';
-        form.value.artist = newRecord.artist || '';
-        form.value.format = newRecord.format || '';
-        form.value.trackcount = newRecord.trackcount || 0;
-        form.value.label = newRecord.label || '';
-        form.value.country = newRecord.country || '';
-        form.value.releasedate = newRecord.releasedate || '';
-        form.value.genre = newRecord.genre || '';
-        form.value.price = newRecord.price || 0.0;
-        form.value.grade = newRecord.grade || '';
-        // Handle booklet images if they exist
-      }
-    }, { immediate: true });
 
     return {
       emitValue,

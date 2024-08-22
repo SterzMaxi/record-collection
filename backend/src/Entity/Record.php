@@ -195,7 +195,7 @@ class Record
         return $this->releasedate;
     }
 
-    public function setReleaseDate(DateTimeInterface $releasedate): void
+    public function setReleaseDate(\DateTimeInterface $releasedate): void
     {
         $this->releasedate = $releasedate;
     }

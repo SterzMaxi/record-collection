@@ -109,8 +109,8 @@
           </div>
         </div>
 
-        <RouterLink :to="{ name: 'CreateRecord', params: { collectionId: collection.id } }">
-          <button type="button" class="btn mb-3 btn-primary mt-5">Record erstellen</button>
+        <RouterLink type="button" class="routerlink-button btn mb-3 btn-primary mt-5" :to="{ name: 'CreateRecord', params: { collectionId: collection.id } }">
+          Record erstellen
         </RouterLink>
 
       </div>
@@ -241,6 +241,11 @@ onMounted(() => {
 
 
 <style scoped>
+
+.routerlink-button {
+  align-self: center;
+  width: 10em;
+}
 .container-fluid {
   padding: 0 !important;
   /* Remove any padding to make the card truly full width */

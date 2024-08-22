@@ -77,10 +77,10 @@ class TrackUploadController extends AbstractController
         return new JsonResponse($jsonTracks, Response::HTTP_OK);
     }
 
-    #[Route('/api/track/{id}', name: 'api_get_track', methods: ['GET'])]
-    public function getTrack(int $id, TrackRepository $trackRepository): Response
+    #[Route('/api/collection/{collectionId}/record/{recordId}/track/{trackId}', name: 'api_get_track_of_record_in_collection', methods: ['GET'])]
+    public function getTrack(int $trackId, TrackRepository $trackRepository): Response
     {
-        $track = $trackRepository->find($id);
+        $track = $trackRepository->find($trackId);
 
         if (!$track) {
             return new JsonResponse(['error' => 'Track not found'], Response::HTTP_NOT_FOUND);
@@ -150,4 +150,50 @@ class TrackUploadController extends AbstractController
 
         return new JsonResponse($jsonTracks, Response::HTTP_OK);
     }
+
+    #[Route('/api/collection/{collectionId}/record/{recordId}/track/{trackId}', name: 'api_update_track_for_record_in_collection', methods: ['PUT'])]
+public function updateTrackForRecordInCollection(int $collectionId, int $recordId, int $trackId, Request $request, EntityManagerInterface $entityManager, #[CurrentUser] $user): Response
+{
+    // Fetch the record that belongs to the specific collection
+    $record = $entityManager->getRepository(Record::class)->findOneBy([
+        'id' => $recordId,
+        'collection' => $collectionId,
+    ]);
+
+    if (!$record) {
+        return new JsonResponse(['error' => 'Record not found in the specified collection'], Response::HTTP_NOT_FOUND);
+    }
+
+    // Fetch the track within the specified record
+    $track = $entityManager->getRepository(Track::class)->findOneBy([
+        'id' => $trackId,
+        'record' => $record
+    ]);
+
+    if (!$track) {
+        return new JsonResponse(['error' => 'Track not found in the specified record'], Response::HTTP_NOT_FOUND);
+    }
+
+    // Decode the JSON payload
+    $data = json_decode($request->getContent(), true);
+
+    // Validate that all required fields are present in the JSON data
+    if (!isset($data['artist'], $data['tracknumber'], $data['tracktitle'], $data['tracktime'], $data['genre'], $data['listenlink'])) {
+        return new JsonResponse(['error' => 'Missing track data'], Response::HTTP_BAD_REQUEST);
+    }
+
+    // Update track details
+    $track->setArtist($data['artist']);
+    $track->setTracknumber($data['tracknumber']);
+    $track->setTracktitle($data['tracktitle']);
+    $track->setTracktime($data['tracktime']);
+    $track->setGenre($data['genre']);
+    $track->setListenlink($data['listenlink']);
+
+    $entityManager->flush();
+
+    return new JsonResponse(['message' => 'Track updated successfully'], Response::HTTP_OK);
+}
+
+
 }

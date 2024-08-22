@@ -1,12 +1,12 @@
 <template>
   <div>
     <h1 class="mt-5">
-      Erstelle Record
+      Bearbeite Record
     </h1>
   </div>
 
-  <RecordUploadForm :collectionId="collectionId" @submit-record="handleRecordSubmit" ref="recordUploadForm"
-    :trackcount="trackcount || 0" :onChange="updateTrackCount" :isEditMode="false" />
+  <RecordUploadForm :collectionId="collectionId" :recordId="recordId" @submit-record="handleRecordSubmit"
+    ref="recordUploadForm" :trackcount="trackcount || 0" :onChange="updateTrackCount" :isEditMode="true" />
 
   <h1 class="mt-5">Tracks</h1>
   <div class="card w-100 p-3">
@@ -17,8 +17,11 @@
       <div v-for="(track, index) in tracks" :key="track.id">
         <div class="card w-100 p-3 mt-3">
           <h3>Track {{ index + 1 }}</h3>
+          <!---->
+          {{ track.id }}
           <TrackForm :collectionId="collectionId" :recordId="recordId" :trackId="track.id" ref="trackForms"
-            :trackIndex="index" :removeTrack="removeTrack" :isEditMode="false" />
+            :trackIndex="index" :removeTrack="removeTrack" :isEditMode="true" />
+
         </div>
       </div>
     </div>
@@ -26,7 +29,7 @@
   <button type="submit" class="btn btn-primary mt-5" @click="submitAllForms">Erstellen</button>
 </template>
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router'
 import axios from 'axios';
 import RecordUploadForm from '../components/RecordUploadForm.vue';
@@ -42,6 +45,11 @@ export default {
     collectionId: {
       type: Number,
       required: true
+    },
+    recordId: {
+      type: Number,
+      required: true,
+      default: 0,
     }
   },
   setup(props) {
@@ -57,15 +65,24 @@ export default {
     const recordFormData = ref(null);
     const trackFormsData = ref([]);
 
+    const fetchTracks = async () => {
+      try {
+        const response = await axios.get(`/api/collection/${props.collectionId}/record/${props.recordId}/tracks`, {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
+        });
+        tracks.value = response.data; // Assuming the response data is an array of tracks with real IDs
+        trackcount.value = tracks.value.length;
+      } catch (error) {
+        console.error("There was an error fetching the tracks:", error);
+      }
+    };
+
     const handleRecordSubmit = (id) => {
-      console.log('Record ID received from child:', id);
-      recordId.value = id; // Store the recordId received from the child component
+      recordId.value = id;
     };
 
     const updateTrackCount = (newCount) => {
-      if (newCount > 50) {
-        newCount = 50;
-      }
+      if (newCount > 50) newCount = 50;
       trackcount.value = newCount;
       adjustTrackList();
     };
@@ -78,43 +95,43 @@ export default {
     };
 
     const adjustTrackList = () => {
-      while (tracks.value.length < trackcount.value) {
-        if (tracks.value.length < 50) {
-          tracks.value.push({ id: Date.now() });
-        }
-      }
       while (tracks.value.length > trackcount.value) {
         tracks.value.pop();
       }
     };
 
-    const removeTrack = (index) => {
-      tracks.value.splice(index, 1);
-      trackcount.value = tracks.value.length;
-      trackFormsData.value.splice(index, 1);
+    const removeTrack = async (index) => {
+      const trackId = tracks.value[index].id;
+      try {
+        await axios.delete(`/api/collection/${props.collectionId}/record/${recordId.value}/track/${trackId}`, {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
+        });
+        tracks.value.splice(index, 1);
+        trackcount.value = tracks.value.length;
+      } catch (error) {
+        console.error("There was an error removing the track:", error);
+      }
     };
 
     const submitAllForms = async () => {
       try {
-        // Submit record form
         if (recordUploadForm.value) {
-          await recordUploadForm.value.submitForm(); // Call submitForm method on RecordUploadForm
+          await recordUploadForm.value.submitForm(); // Submit the record form
         }
 
-        // Submit track forms
         await Promise.all(trackForms.value.map(async (trackForm, index) => {
           if (trackForm) {
-            await trackForm.submitForm(recordId.value); // Call submitForm method on TrackForm
+            await trackForm.submitForm(); // Submit each track form
           }
         }));
 
-        // After all forms are successfully submitted, navigate to MyCollection.vue
-        router.push({ name: 'MyCollections' }); // Replace 'MyCollection' with your actual route name
+        router.push({ name: 'MyCollections' }); // Navigate to MyCollections after submission
       } catch (error) {
         console.error('Error submitting forms:', error);
-        // Handle errors as needed
       }
     };
+
+    onMounted(fetchTracks);
 
     return {
       recordUploadForm,

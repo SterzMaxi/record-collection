@@ -49,6 +49,18 @@ const createRouterInstance = (keycloak) => {
         component: () => import('../views/CreateRecord.vue')
       },
       {
+        path: '/editrecord/:collectionId/record/:recordId',
+        name: 'EditRecord',
+        props: route => ({
+          collectionId: Number(route.params.collectionId),
+          recordId: Number(route.params.recordId),
+        }),
+        meta: {
+          isAuthenticated: true
+        },
+        component: () => import('../views/EditRecord.vue')
+      },
+      {
         path: '/collection/:collectionId/record/:recordId',
         name: 'ShowRecord',
         props: route => ({

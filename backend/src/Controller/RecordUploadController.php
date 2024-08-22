@@ -188,33 +188,76 @@ class RecordUploadController extends AbstractController
         return new JsonResponse($jsonRecord, Response::HTTP_OK);
     }
 
-    #[Route('/api/record/{id}', name: 'api_update_record', methods: ['PUT'])]
-    public function updateRecord(int $id, Request $request, EntityManagerInterface $em, #[CurrentUser] $user): Response
+    #[Route('/api/collection/{collectionId}/record/{recordId}', name: 'api_update_record', methods: ['PUT'])]
+    public function updateRecord(int $collectionId, int $recordId, Request $request, EntityManagerInterface $em): Response
     {
-        // Find the existing record by ID
-        $record = $em->getRepository(Record::class)->find($id);
+        $record = $em->getRepository(Record::class)->findOneBy([
+            'collection' => $collectionId,
+            'id' => $recordId
+        ]);
 
         if (!$record) {
-            return new Response('Record not found', Response::HTTP_NOT_FOUND);
+            return new JsonResponse(['error' => 'Record not found'], Response::HTTP_NOT_FOUND);
         }
 
-        // Check if the current user is authorized to edit the record
-        if ($record->getCollection()->getUser()->getId() !== $user->getId()) {
-            return new Response('Unauthorized', Response::HTTP_FORBIDDEN);
+        $data = json_decode($request->getContent(), true);
+
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON data'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Update record fields with the new data
-        $collectionId = $request->request->get('collection_id');
-        $title = $request->request->get('title');
-        $artist = $request->request->get('artist');
-        $format = $request->request->get('format');
-        $trackcount = $request->request->get('trackcount');
-        $label = $request->request->get('label');
-        $country = $request->request->get('country');
-        $releasedate = $request->request->get('releasedate');
-        $genre = $request->request->get('genre');
-        $price = $request->request->get('price');
-        $grade = $request->request->get('grade');
+        // Update record fields
+        if (isset($data['title']))
+            $record->setTitle($data['title']);
+        if (isset($data['artist']))
+            $record->setArtist($data['artist']);
+        if (isset($data['format']))
+            $record->setFormat($data['format']);
+        if (isset($data['trackcount']))
+            $record->setTrackcount((int) $data['trackcount']);
+        if (isset($data['label']))
+            $record->setLabel($data['label']);
+        if (isset($data['country']))
+            $record->setCountry($data['country']);
+        if (isset($data['genre']))
+            $record->setGenre($data['genre']);
+        if (isset($data['price']))
+            $record->setPrice((float) $data['price']);
+        if (isset($data['grade']))
+            $record->setGrade($data['grade']);
+        if (isset($data['releasedate'])) {
+            try {
+                $formattedDate = new \DateTime($data['releasedate']);
+                $record->setReleaseDate($formattedDate);
+            } catch (\Exception $e) {
+                return new JsonResponse(['error' => 'Invalid date format'], Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        $em->persist($record);
+        $em->flush();
+
+        $responseData = [
+            'message' => 'Record updated successfully',
+            'id' => $record->getId(),
+            'title' => $record->getTitle(),
+        ];
+
+        return new JsonResponse($responseData, Response::HTTP_OK);
+    }
+
+
+    #[Route('/api/collection/{collectionId}/record/{recordId}/upload-files', name: 'api_upload_record_files', methods: ['POST'])]
+    public function uploadRecordFiles(int $collectionId, int $recordId, Request $request, EntityManagerInterface $em): Response
+    {
+        $record = $em->getRepository(Record::class)->findOneBy([
+            'collection' => $collectionId,
+            'id' => $recordId
+        ]);
+
+        if (!$record) {
+            return new JsonResponse(['error' => 'Record not found'], Response::HTTP_NOT_FOUND);
+        }
 
         // Handle file uploads
         $bookletfront = $request->files->get('bookletfront');
@@ -223,12 +266,12 @@ class RecordUploadController extends AbstractController
         $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads';
 
         if ($bookletfront) {
-            // Remove old file if it exists
+            // Delete old booklet front file if it exists
             $oldBookletFront = $record->getBookletFront();
             if ($oldBookletFront && file_exists($uploadDir . '/' . $oldBookletFront)) {
                 unlink($uploadDir . '/' . $oldBookletFront);
             }
-
+            // Save new booklet front file
             $mimeTypes = new MimeTypes();
             $extension = $mimeTypes->getExtensions($bookletfront->getMimeType())[0];
             $bookletfrontFilename = md5(uniqid()) . '.' . $extension;
@@ -237,12 +280,12 @@ class RecordUploadController extends AbstractController
         }
 
         if ($bookletback) {
-            // Remove old file if it exists
+            // Delete old booklet back file if it exists
             $oldBookletBack = $record->getBookletBack();
             if ($oldBookletBack && file_exists($uploadDir . '/' . $oldBookletBack)) {
                 unlink($uploadDir . '/' . $oldBookletBack);
             }
-
+            // Save new booklet back file
             $mimeTypes = new MimeTypes();
             $extension = $mimeTypes->getExtensions($bookletback->getMimeType())[0];
             $bookletbackFilename = md5(uniqid()) . '.' . $extension;
@@ -250,47 +293,12 @@ class RecordUploadController extends AbstractController
             $record->setBookletBack($bookletbackFilename);
         }
 
-        // Check if releasedate is present and not empty
-        if ($releasedate) {
-            try {
-                $formattedDate = new \DateTime($releasedate);
-                $record->setReleaseDate($formattedDate);
-            } catch (\Exception $e) {
-                return new Response('Invalid date format', Response::HTTP_BAD_REQUEST);
-            }
-        }
-
-        $price = (float) $price;
-
-        // Update record fields
-        if ($title)
-            $record->setTitle($title);
-        if ($artist)
-            $record->setArtist($artist);
-        if ($format)
-            $record->setFormat($format);
-        if ($trackcount !== null)
-            $record->setTrackCount((int) $trackcount);
-        if ($label)
-            $record->setLabel($label);
-        if ($country)
-            $record->setCountry($country);
-        if ($genre)
-            $record->setGenre($genre);
-        if ($price !== null)
-            $record->setPrice($price);
-        if ($grade)
-            $record->setGrade($grade);
-
+        $em->persist($record);
         $em->flush();
 
-        $responseData = [
-            'message' => 'Record updated successfully',
-            'id' => $record->getId()
-        ];
-
-        return new JsonResponse($responseData, Response::HTTP_OK);
+        return new JsonResponse(['message' => 'Files updated successfully'], Response::HTTP_OK);
     }
+
 
     #[Route('/api/record/{id}', name: 'api_delete_record', methods: ['DELETE'])]
     public function deleteRecord(int $id, EntityManagerInterface $em, #[CurrentUser] $user): Response

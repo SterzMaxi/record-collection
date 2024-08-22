@@ -22,9 +22,12 @@
                         </RouterLink>
 
                         <div v-if="isOwner(record.userId)" class="record-actions">
-                            <button @click="editRecord(record.id)" class="btn btn-primary btn-sm">
-                                <i class="bi bi-pencil"></i>
-                            </button>
+                            <RouterLink :to="{ name: 'EditRecord', params: { collectionId: collectionId, recordId: record.id } }">
+                                <button class="btn btn-primary btn-sm">
+
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </RouterLink>
                             <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#DeleteModal">
                                 <i class="bi bi-trash"></i>
                             </button>
