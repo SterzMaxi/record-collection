@@ -26,7 +26,7 @@
       </div>
     </div>
   </div>
-  <button type="submit" class="btn btn-primary mt-5" @click="submitAllForms">Erstellen</button>
+  <button type="submit" class="btn btn-primary mt-5" @click="submitAllForms">Bearbeiten</button>
 </template>
 <script>
 import { ref, onMounted } from 'vue';
@@ -60,7 +60,7 @@ export default {
     const recordId = ref(0);
     const trackForms = ref([]);
 
-    const trackcount = ref(0); // Initialize trackcount
+    const trackcount = ref(0);
     const tracks = ref([]);
     const recordFormData = ref(null);
     const trackFormsData = ref([]);
@@ -70,7 +70,7 @@ export default {
         const response = await axios.get(`/api/collection/${props.collectionId}/record/${props.recordId}/tracks`, {
           headers: { 'Authorization': 'Bearer ' + localStorage.getItem('vue-token') },
         });
-        tracks.value = response.data; // Assuming the response data is an array of tracks with real IDs
+        tracks.value = response.data;
         trackcount.value = tracks.value.length;
       } catch (error) {
         console.error("There was an error fetching the tracks:", error);

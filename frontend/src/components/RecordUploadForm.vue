@@ -81,15 +81,39 @@
         <div class="row mt-4">
           <div class="col">
             <label class="h5 w-100" for="bookletfront">Booklet Front:
-              <input type="file" size="100" class="form-control text-center"
-                @change="handleFileChange('bookletfront', $event)">
+              <input type="file" size="100" class="form-control text-center" accept=".jpg,.jpeg,.png"
+                @change="openCropperModal('bookletfront', $event)">
             </label>
+            <img v-if="thumbnails.bookletfront" :src="thumbnails.bookletfront" alt="Booklet Back Preview"
+              class="img-thumbnail mt-2" style="max-width: 250px; max-height: 250px;">
           </div>
           <div class="col">
             <label class="h5 w-100" for="bookletback">Booklet Back:
-              <input type="file" size="100" class="form-control text-center"
-                @change="handleFileChange('bookletback', $event)">
+              <input type="file" ref="bookletbackInput" size="100" class="form-control text-center"
+                accept=".jpg,.jpeg,.png" @change="openCropperModal('bookletback', $event)">
             </label>
+            <img v-if="thumbnails.bookletback" :src="thumbnails.bookletback" alt="Booklet Back Preview"
+              class="img-thumbnail mt-2" style="max-width: 250px; max-height: 250px;"
+              @click="triggerFileInput('bookletbackInput')">
+          </div>
+        </div>
+        <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="cropperModalLabel">Bild zuschneiden</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div>
+                  <img ref="image" class="img-fluid img-cropping" alt="Crop Image">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary" @click="cropImage">zuschneiden</button>
+              </div>
+            </div>
           </div>
         </div>
         <button type="submit" style="display: none;"></button> <!-- Hide the submit button -->
@@ -100,10 +124,13 @@
 
 <script>
 import { ref, watch, onMounted } from 'vue';
+import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
 import axios from 'axios';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { useRoute } from 'vue-router';
+import { Modal } from 'bootstrap';
 
 export default {
   components: {
@@ -153,6 +180,14 @@ export default {
       grade: '',
     });
 
+    const thumbnails = ref({
+      bookletfront: null,
+      bookletback: null,
+    });
+
+    const cropper = ref(null);
+    const selectedField = ref('');
+
     const route = useRoute();
     const recordId = route.params.recordId;
     console.log('Record ID from route:', recordId);
@@ -160,8 +195,82 @@ export default {
 
     const dateFormat = 'yyyy-mm-dd';
 
+    const triggerFileInput = (refName) => {
+      const fileInput = document.querySelector(`input[ref=${refName}]`); // Get file input element by ref
+      if (fileInput) {
+        fileInput.click(); // Trigger click event
+      }
+    };
+
+    const openCropperModal = (field, event) => {
+      selectedField.value = field;
+      const file = event.target.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const imageElement = document.querySelector('#cropperModal img');
+          imageElement.src = e.target.result;
+
+          const cropperModalElement = document.getElementById('cropperModal');
+          const cropperModal = new Modal(cropperModalElement);
+          cropperModal.show();
+
+          cropperModalElement.addEventListener('shown.bs.modal', () => {
+            
+            cropper.value = new Cropper(imageElement, {
+              aspectRatio: 1,
+              viewMode: 1,
+              minCropBoxWidth: 100, // Minimum width of the crop box
+              minCropBoxHeight: 100, // Minimum height of the crop box
+              maxCropBoxWidth: 500, // Maximum width of the crop box
+              maxCropBoxHeight: 500, // Maximum height of the crop box
+              cropBoxResizable: true, // Allows user to resize the crop box
+              autoCropArea: 0.5,
+            });
+          }, { once: true })
+
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const cropImage = () => {
+      if (cropper.value) {
+        const canvas = cropper.value.getCroppedCanvas({
+          width: 250,
+          height: 250,
+        });
+
+        canvas.toBlob((blob) => {
+          // Create a URL for the blob and display it as a thumbnail
+          thumbnails.value[selectedField.value] = URL.createObjectURL(blob);
+          form.value[selectedField.value] = blob;
+
+          // Hide the modal
+          const cropperModal = Modal.getInstance(document.getElementById('cropperModal'));
+          cropperModal.hide();
+
+          // Destroy the cropper instance
+          cropper.value.destroy();
+          cropper.value = null;
+        });
+      }
+    };
+
     const handleFileChange = (field, event) => {
-      form.value[field] = event.target.files[0];
+      const file = event.target.files[0];
+      form.value[field] = file;
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          thumbnails.value[field] = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        thumbnails.value[field] = null; // Reset the thumbnail if no file is selected
+      }
     };
 
     const emitValue = () => {
@@ -187,6 +296,13 @@ export default {
         form.value.bookletfront = record.bookletfront || null;
         form.value.bookletback = record.bookletback || null;
 
+        if (record.bookletfront) {
+          thumbnails.value.bookletfront = record.bookletfront;
+        }
+        if (record.bookletback) {
+          thumbnails.value.bookletback = record.bookletback;
+        }
+
         emitValue();
       } catch (error) {
         console.error("There was an error fetching the collections:", error);
@@ -200,19 +316,19 @@ export default {
 
         if (props.isEditMode) {
           const jsonData = {
-          title: form.value.title,
-          artist: form.value.artist,
-          format: form.value.format,
-          trackcount: form.value.trackcount,
-          label: form.value.label,
-          country: form.value.country,
-          releasedate: form.value.releasedate,
-          genre: form.value.genre,
-          price: form.value.price,
-          grade: form.value.grade,
-        };
+            title: form.value.title,
+            artist: form.value.artist,
+            format: form.value.format,
+            trackcount: form.value.trackcount,
+            label: form.value.label,
+            country: form.value.country,
+            releasedate: form.value.releasedate,
+            genre: form.value.genre,
+            price: form.value.price,
+            grade: form.value.grade,
+          };
 
-        
+
           await axios.put(`/api/collection/${props.collectionId}/record/${recordId}`, jsonData, {
             headers: {
               'Authorization': 'Bearer ' + localStorage.getItem('vue-token'),
@@ -220,7 +336,7 @@ export default {
             },
           });
           console.log('Record updated successfully');
-          
+
           // 2. Send files via POST
           const formData = new FormData();
           if (form.value.bookletfront) {
@@ -290,6 +406,15 @@ export default {
       }
     };
 
+    watch(
+      () => props.isEditMode,
+      (newValue) => {
+        if (newValue) {
+          fetchRecords();
+        }
+      }
+    );
+
     onMounted(() => {
       if (props.isEditMode) {
         fetchRecords();
@@ -304,14 +429,25 @@ export default {
     return {
       emitValue,
       form,
+      openCropperModal,
+      cropImage,
+      thumbnails,
       dateFormat,
       handleFileChange,
       submitForm,
+      triggerFileInput,
     };
   },
 };
 </script>
 
 <style scoped>
-/* Optionally, you can add custom styles here */
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.modal-content {
+  height: 40em;
+}
 </style>

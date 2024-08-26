@@ -67,14 +67,14 @@
 
 <style scoped>
 .container-fluid {
-  padding: 0 !important; /* Remove any padding to make the card truly full width */
+  padding: 0 !important;
 }
 
 .card {
-  width: 80vw !important; /* Full viewport width */
-  max-width: 100% !important; /* Ensure no maximum width is set */
+  width: 80vw !important;
+  max-width: 100% !important;
   margin: 0 !important;
-  padding: 20px !important; /* Adjust padding as necessary */
+  padding: 20px !important;
   box-sizing: border-box;
 }
 </style>

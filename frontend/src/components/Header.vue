@@ -77,7 +77,6 @@ onMounted(() => {
 </script>
 
 <style>
-/* Include Bootstrap Icons CSS */
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
 .navbar-nav .dropdown-menu 

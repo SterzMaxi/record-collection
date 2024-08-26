@@ -16,14 +16,14 @@ use Psr\Log\LoggerInterface;
 class TrackUploadController extends AbstractController
 {
     #[Route('/api/track', name: 'api_create_track', methods: ['POST'])]
-    public function createTrack(Request $request, EntityManagerInterface $entityManager, #[CurrentUser] $user): Response
+    public function createTrack(Request $request, EntityManagerInterface $em, #[CurrentUser] $user): Response
     {
         $recordId = $request->request->get('record_id');
         if (!$recordId) {
             return new Response('Record ID is missing', Response::HTTP_BAD_REQUEST);
         }
 
-        $record = $entityManager->getRepository(Record::class)->find($recordId);
+        $record = $em->getRepository(Record::class)->find($recordId);
         if (!$record) {
             return new Response('Record not found', Response::HTTP_NOT_FOUND);
         }
@@ -49,8 +49,8 @@ class TrackUploadController extends AbstractController
             $listenlink
         );
 
-        $entityManager->persist($track);
-        $entityManager->flush();
+        $em->persist($track);
+        $em->flush();
 
         return new Response('Track uploaded successfully', Response::HTTP_CREATED);
     }
@@ -70,7 +70,7 @@ class TrackUploadController extends AbstractController
                 'tracktime' => $track->getTracktime(),
                 'genre' => $track->getGenre(),
                 'listenlink' => $track->getListenlink(),
-                'record_id' => $track->getRecord()->getId(), // Assuming you need record ID
+                'record_id' => $track->getRecord()->getId(),
             ];
         }
 
@@ -94,14 +94,14 @@ class TrackUploadController extends AbstractController
             'tracktime' => $track->getTracktime(),
             'genre' => $track->getGenre(),
             'listenlink' => $track->getListenlink(),
-            'record_id' => $track->getRecord()->getId(), // Assuming you need record ID
+            'record_id' => $track->getRecord()->getId(),
         ];
 
         return new JsonResponse($jsonTrack, Response::HTTP_OK);
     }
 
     #[Route('/api/track/{id}', name: 'api_delete_track', methods: ['DELETE'])]
-    public function deleteTrack(int $id, TrackRepository $trackRepository, EntityManagerInterface $entityManager): Response
+    public function deleteTrack(int $id, TrackRepository $trackRepository, EntityManagerInterface $em): Response
     {
         $track = $trackRepository->find($id);
 
@@ -109,16 +109,16 @@ class TrackUploadController extends AbstractController
             return new JsonResponse(['error' => 'Track not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $entityManager->remove($track);
-        $entityManager->flush();
+        $em->remove($track);
+        $em->flush();
 
         return new Response('Track deleted successfully', Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/api/collection/{collectionId}/record/{recordId}/tracks', name: 'api_get_tracks_for_record', methods: ['GET'])]
-    public function getTracksForRecord(int $collectionId, int $recordId, TrackRepository $trackRepository, EntityManagerInterface $entityManager): Response
+    public function getTracksForRecord(int $collectionId, int $recordId, TrackRepository $trackRepository, EntityManagerInterface $em): Response
     {
-        $record = $entityManager->getRepository(Record::class)->findOneBy([
+        $record = $em->getRepository(Record::class)->findOneBy([
             'id' => $recordId,
             'collection' => $collectionId
         ]);
@@ -144,7 +144,7 @@ class TrackUploadController extends AbstractController
                     'tracktime' => $track->getTracktime(),
                     'genre' => $track->getGenre(),
                     'listenlink' => $track->getListenlink(),
-                    'record_id' => $track->getRecord()->getId(), // Assuming you need record ID
+                    'record_id' => $track->getRecord()->getId(),
                 ];
             }
 
@@ -152,10 +152,10 @@ class TrackUploadController extends AbstractController
     }
 
     #[Route('/api/collection/{collectionId}/record/{recordId}/track/{trackId}', name: 'api_update_track_for_record_in_collection', methods: ['PUT'])]
-public function updateTrackForRecordInCollection(int $collectionId, int $recordId, int $trackId, Request $request, EntityManagerInterface $entityManager, #[CurrentUser] $user): Response
+public function updateTrackForRecordInCollection(int $collectionId, int $recordId, int $trackId, Request $request, EntityManagerInterface $em, #[CurrentUser] $user): Response
 {
     // Fetch the record that belongs to the specific collection
-    $record = $entityManager->getRepository(Record::class)->findOneBy([
+    $record = $em->getRepository(Record::class)->findOneBy([
         'id' => $recordId,
         'collection' => $collectionId,
     ]);
@@ -165,7 +165,7 @@ public function updateTrackForRecordInCollection(int $collectionId, int $recordI
     }
 
     // Fetch the track within the specified record
-    $track = $entityManager->getRepository(Track::class)->findOneBy([
+    $track = $em->getRepository(Track::class)->findOneBy([
         'id' => $trackId,
         'record' => $record
     ]);
@@ -190,7 +190,7 @@ public function updateTrackForRecordInCollection(int $collectionId, int $recordI
     $track->setGenre($data['genre']);
     $track->setListenlink($data['listenlink']);
 
-    $entityManager->flush();
+    $em->flush();
 
     return new JsonResponse(['message' => 'Track updated successfully'], Response::HTTP_OK);
 }

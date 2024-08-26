@@ -52,7 +52,7 @@ export default {
     const recordId = ref(0);
     const trackForms = ref([]);
 
-    const trackcount = ref(0); // Initialize trackcount
+    const trackcount = ref(0);
     const tracks = ref([]);
     const recordFormData = ref(null);
     const trackFormsData = ref([]);
@@ -109,10 +109,9 @@ export default {
         }));
 
         // After all forms are successfully submitted, navigate to MyCollection.vue
-        router.push({ name: 'MyCollections' }); // Replace 'MyCollection' with your actual route name
+        router.push({ name: 'MyCollections' });
       } catch (error) {
         console.error('Error submitting forms:', error);
-        // Handle errors as needed
       }
     };
 

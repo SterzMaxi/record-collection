@@ -44,12 +44,9 @@ export default {
 <style scoped>
 .card {
   width: 80vw !important;
-  /* Full viewport width */
   max-width: 100% !important;
-  /* Ensure no maximum width is set */
   margin: 0 !important;
   padding: 20px !important;
-  /* Adjust padding as necessary */
   box-sizing: border-box;
 }
 </style>

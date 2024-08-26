@@ -4,7 +4,8 @@ import App from './App.vue'
 import router from './router/router.js'
 import createRouter from './router/router.js';
 import authentication from './plugins/KeycloakPlugin.js'
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
 
 import 'bootstrap/dist/css/bootstrap.css';
 

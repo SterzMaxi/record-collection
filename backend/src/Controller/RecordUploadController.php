@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Mime\MimeTypes;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class RecordUploadController extends AbstractController
@@ -60,6 +62,23 @@ class RecordUploadController extends AbstractController
 
         $bookletfrontFilename = null;
         $bookletbackFilename = null;
+
+        $allowedMimeTypes = ['image/jpeg', 'image/png'];
+
+
+        if ($bookletfront) {
+            if (!$this->validateFileType($bookletfront, $allowedMimeTypes)) {
+                return new Response('Invalid file type for Booklet Front. Only JPG and PNG are allowed.', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        // Validate bookletback
+        if ($bookletback) {
+            if (!$this->validateFileType($bookletback, $allowedMimeTypes)) {
+                return new Response('Invalid file type for Booklet Back. Only JPG and PNG are allowed.', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
 
         if ($bookletfront) {
             $mimeTypes = new MimeTypes();
@@ -265,6 +284,23 @@ class RecordUploadController extends AbstractController
 
         $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads';
 
+        $allowedMimeTypes = ['image/jpeg', 'image/png'];
+
+
+        if ($bookletfront) {
+            if (!$this->validateFileType($bookletfront, $allowedMimeTypes)) {
+                return new Response('Invalid file type for Booklet Front. Only JPG and PNG are allowed.', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        // Validate bookletback
+        if ($bookletback) {
+            if (!$this->validateFileType($bookletback, $allowedMimeTypes)) {
+                return new Response('Invalid file type for Booklet Back. Only JPG and PNG are allowed.', Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+
         if ($bookletfront) {
             // Delete old booklet front file if it exists
             $oldBookletFront = $record->getBookletFront();
@@ -333,6 +369,12 @@ class RecordUploadController extends AbstractController
         $em->flush();
 
         return new Response('Record deleted successfully', Response::HTTP_NO_CONTENT);
+    }
+
+    private function validateFileType(UploadedFile $file, array $allowedMimeTypes): bool
+    {
+        $mimeType = $file->getMimeType();
+        return in_array($mimeType, $allowedMimeTypes);
     }
 }
 

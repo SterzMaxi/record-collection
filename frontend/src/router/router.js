@@ -4,7 +4,7 @@ import { keycloak } from '../plugins/KeycloakPlugin';
 
 const createRouterInstance = (keycloak) => {
   const router = createRouter({
-    history: createWebHistory(), // Changed to createWebHistory()
+    history: createWebHistory(),
 
     routes: [
       {
@@ -40,7 +40,7 @@ const createRouterInstance = (keycloak) => {
         component: () => import('../views/MyCollections.vue')
       },
       {
-        path: '/createrecord/:collectionId', // Added :collectionId to the path
+        path: '/createrecord/:collectionId',
         name: 'CreateRecord',
         props: route => ({ collectionId: Number(route.params.collectionId) }),
         meta: {

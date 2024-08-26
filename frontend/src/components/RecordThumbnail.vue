@@ -173,7 +173,6 @@ export default {
         };
 
         const editRecord = (recordId) => {
-            // Implement your edit logic here
         };
 
         const deleteRecord = async (recordId) => {
@@ -234,7 +233,6 @@ a {
 .record-card {
     margin: 0 10px;
     height: 100%;
-    /* Match card height to carousel item height */
     width: 250px;
 }
 
@@ -257,18 +255,16 @@ a {
     gap: 5px;
 }
 
-/* Only show the buttons on hover when the parent has the 'hover-enabled' class */
 .hover-enabled .record-card:hover .record-actions {
     display: flex;
 }
 
-/* Adjust button styles */
 .record-actions button {
     opacity: 0.8;
 }
 
 .card-img-top {
-    height: 200px;
+    height: 250px;
     object-fit: cover;
     border-radius: 0% !important;
 }

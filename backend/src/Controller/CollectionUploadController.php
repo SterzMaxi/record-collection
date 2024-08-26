@@ -22,16 +22,15 @@ class CollectionUploadController extends AbstractController
         // Fetch all collections from the database
         $collections = $collectionRepository->findAll();
 
-        // Manually construct the response array
+        
         $responseData = [];
         foreach ($collections as $collection) {
             $recordsData = [];
             foreach ($collection->getRecords() as $record) {
                 $recordsData[] = [
                     'id' => $record->getId(),
-                    'title' => $record->getTitle(), // Adjust according to your Record entity
-                    'artist' => $record->getArtist(), // Adjust according to your Record entity
-                    // Add more fields as necessary
+                    'title' => $record->getTitle(),
+                    'artist' => $record->getArtist(),
                 ];
             }
 
