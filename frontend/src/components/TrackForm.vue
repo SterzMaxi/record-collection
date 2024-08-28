@@ -23,7 +23,7 @@
         </div>
         <div class="col">
           <label class="h5 w-100" for="grade">Zeit:
-            <input type="text" class="form-control text-center" v-model="form.tracktime" required>
+            <input type="text" class="form-control text-center" v-model="form.tracktime">
           </label>
         </div>
       </div>
@@ -35,7 +35,7 @@
         </div>
         <div class="col">
           <label class="h5 w-100" for="grade">Link:
-            <input type="text" class="form-control text-center" v-model="form.listenlink" required>
+            <input type="text" class="form-control text-center" v-model="form.listenlink">
           </label>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default {
       artist: '',
       tracktitle: '',
       tracknumber: '',
-      tracktime: '',
+      tracktime: '-:-',
       genre: '',
       listenlink: '',
     });
