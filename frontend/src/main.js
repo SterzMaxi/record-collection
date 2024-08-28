@@ -7,7 +7,9 @@ import authentication from './plugins/KeycloakPlugin.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 
-import 'bootstrap/dist/css/bootstrap.css';
+// import 'bootstrap/dist/css/bootstrap.css';
+
+// import 'bootstrap/dist/js/bootstrap.bundle.js';
 
 // Create the Vue app instance
 const app = createApp(App);

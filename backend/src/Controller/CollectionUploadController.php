@@ -164,4 +164,40 @@ class CollectionUploadController extends AbstractController
 
         return new JsonResponse(['message' => 'Collection and associated records deleted successfully'], Response::HTTP_OK);
     }
+
+    #[Route('/api/collections/search', name: 'search_collections', methods: ['GET'])]
+    public function searchCollections(Request $request, CollectionRepository $collectionRepository): JsonResponse
+    {
+        $query = $request->query->get('query', '');
+
+        // Use the searchCollections method from CollectionRepository
+        $collections = $collectionRepository->searchCollections($query);
+
+        // Convert the collections to an array (adjust based on your serialization strategy)
+        $data = [];
+        foreach ($collections as $collection) {
+            $collectionData = [
+                'id' => $collection->getId(),
+                'collectionname' => $collection->getCollectionName(),
+                'style' => $collection->getStyle(),
+                // Add other collection fields as necessary
+            ];
+
+            $recordsData = [];
+            foreach ($collection->getRecords() as $record) {
+                $recordsData[] = [
+                    'id' => $record->getId(),
+                    'title' => $record->getTitle(),
+                    'artist' => $record->getArtist(),
+                    'label' => $record->getLabel(),
+                    // Add other record fields as necessary
+                ];
+            }
+
+            $collectionData['records'] = $recordsData;
+            $data[] = $collectionData;
+        }
+
+        return new JsonResponse($data);
+    }
 }

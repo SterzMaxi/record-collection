@@ -6,7 +6,7 @@
   </div>
 
   <RecordUploadForm :collectionId="collectionId" @submit-record="handleRecordSubmit" ref="recordUploadForm"
-    :trackcount="trackcount || 0" :onChange="updateTrackCount" :isEditMode="false" />
+    :trackcount="trackcount || 1" :onChange="updateTrackCount" :isEditMode="false" />
 
   <h1 class="mt-5">Tracks</h1>
   <div class="card w-100 p-3">
@@ -52,8 +52,8 @@ export default {
     const recordId = ref(0);
     const trackForms = ref([]);
 
-    const trackcount = ref(0);
-    const tracks = ref([]);
+    const trackcount = ref(1);
+    const tracks = ref([1]);
     const recordFormData = ref(null);
     const trackFormsData = ref([]);
 
@@ -63,6 +63,7 @@ export default {
     };
 
     const updateTrackCount = (newCount) => {
+      console.log('Updating trackcount with:', newCount);
       if (newCount > 50) {
         newCount = 50;
       }
@@ -74,6 +75,7 @@ export default {
       if (tracks.value.length < 50) {
         tracks.value.push({ id: Date.now() });
         trackcount.value = tracks.value.length;
+        console.log('added track to:', trackcount.value);
       }
     };
 
@@ -89,9 +91,13 @@ export default {
     };
 
     const removeTrack = (index) => {
+      if(trackcount.value > 1)
+    {
       tracks.value.splice(index, 1);
       trackcount.value = tracks.value.length;
       trackFormsData.value.splice(index, 1);
+    }
+      
     };
 
     const submitAllForms = async () => {
@@ -108,7 +114,7 @@ export default {
           }
         }));
 
-        // After all forms are successfully submitted, navigate to MyCollection.vue
+        // After all forms are successfully submitted, navigate to MyCollections.vue
         router.push({ name: 'MyCollections' });
       } catch (error) {
         console.error('Error submitting forms:', error);

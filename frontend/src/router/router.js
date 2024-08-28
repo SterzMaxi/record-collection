@@ -40,6 +40,14 @@ const createRouterInstance = (keycloak) => {
         component: () => import('../views/MyCollections.vue')
       },
       {
+        path: '/collectionsearchresult',
+        name: 'CollectionSearchResult',
+        meta: {
+          isAuthenticated: false
+        },
+        component: () => import('../views/CollectionSearchResult.vue')
+      },
+      {
         path: '/createrecord/:collectionId',
         name: 'CreateRecord',
         props: route => ({ collectionId: Number(route.params.collectionId) }),

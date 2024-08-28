@@ -1,6 +1,4 @@
 <template>
-    <!doctype html>
-  <html>
     <div>
       <nav class="navbar fixed-top navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
         <div class="container-fluid">
@@ -9,8 +7,8 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <form class="d-flex mx-auto" role="search">
-                <input class="form-control me-2" type="search" placeholder="Suchen" aria-label="Search">
+              <form class="d-flex mx-auto" role="search" @submit.prevent="search">
+                <input v-model="searchQuery" class="form-control me-2" type="search" placeholder="Suchen" aria-label="Search" />
                 <button class="btn btn-outline-light" type="submit"><i class="bi bi-search"></i></button>
               </form>
               <ul class="navbar-nav mb-2 mb-lg-0">
@@ -34,21 +32,20 @@
         </div>
       </nav>
     </div>
-  </html>
 </template>
 
 <script setup>
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import keycloakplugin from '../plugins/KeycloakPlugin.js'
-import 'bootstrap'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   msg: String,
 })
 
-const count = ref(0)
+const searchQuery = ref('');
 const username = ref('');
-const userId = ref('');
+const router = useRouter();
 
 const { proxy } = getCurrentInstance();
 const keycloak = proxy.$keycloak;
@@ -65,6 +62,13 @@ const logout = () => {
     localStorage.removeItem("vue-token");
     localStorage.removeItem("vue-refresh-token");
   });
+};
+
+const search = () => {
+  console.log("search pressed");
+  if (searchQuery.value.trim()) {
+    router.push({ name: 'CollectionSearchResult', query: { q: searchQuery.value } });
+  }
 };
 
 onMounted(() => {

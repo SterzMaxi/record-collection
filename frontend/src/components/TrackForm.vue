@@ -6,36 +6,36 @@
       <div class="row mt-4">
         <div class="col">
           <label class="h5 w-100" for="price">Artist:
-            <input type="text" class="form-control" v-model="form.artist" required>
+            <input type="text" class="form-control text-center" v-model="form.artist" required>
           </label>
         </div>
         <div class="col">
           <label class="h5 w-100" for="price">Titel:
-            <input type="text" class="form-control" v-model="form.tracktitle" required>
+            <input type="text" class="form-control text-center" v-model="form.tracktitle" required>
           </label>
         </div>
       </div>
       <div class="row mt-4">
         <div class="col">
           <label class="h5 w-100" for="grade">Tracknummer:
-            <input type="text" class="form-control" v-model="form.tracknumber" required>
+            <input type="text" class="form-control text-center" v-model="form.tracknumber" required>
           </label>
         </div>
         <div class="col">
           <label class="h5 w-100" for="grade">Zeit:
-            <input type="text" class="form-control" v-model="form.tracktime" required>
+            <input type="text" class="form-control text-center" v-model="form.tracktime" required>
           </label>
         </div>
       </div>
       <div class="row mt-4">
         <div class="col">
           <label class="h5 w-100" for="price">Genre:
-            <input type="text" class="form-control" v-model="form.genre" required>
+            <input type="text" class="form-control text-center" v-model="form.genre" required>
           </label>
         </div>
         <div class="col">
           <label class="h5 w-100" for="grade">Link:
-            <input type="text" class="form-control" v-model="form.listenlink" required>
+            <input type="text" class="form-control text-center" v-model="form.listenlink" required>
           </label>
         </div>
       </div>

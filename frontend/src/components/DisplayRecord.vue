@@ -3,7 +3,24 @@
 
     <div class="row mt-4 ml-3" v-if="record && record.value">
       <div class="col-md-6 mt-5">
-        <img :src="getRecordImage(record)" class="img-fluid rounded mx-auto d-block" :alt="record.title">
+        <div id="bookletCarousel" class="carousel slide">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img :src="record.value.bookletfront" class="img-fluid rounded mx-auto d-block record-img" :alt="record.title">
+            </div>
+            <div class="carousel-item">
+              <img :src="record.value.bookletback" class="img-fluid rounded mx-auto d-block record-img" :alt="record.title">
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#bookletCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#bookletCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
         <div class="card w-100 m-0 p-3">
           <button @click="toggleCollapse" class="btn btn-outline-dark" type="button" data-bs-toggle="collapse"
             data-bs-target="#collapseCollectionForm" aria-expanded="false" aria-controls="collapseCollectionForm">
@@ -104,16 +121,6 @@ export default {
       }
     };
 
-    const getRecordImage = (record) => {
-      if (record.value.bookletfront) {
-        return `${record.value.bookletfront}`;
-      } else if (record.value.bookletback) {
-        return `${record.value.bookletback}`;
-      } else {
-        return '../assets/vue.svg';
-      }
-    };
-
     onMounted(() => {
       fetchRecord();
     });
@@ -122,7 +129,6 @@ export default {
     return {
       record,
       isClicked,
-      getRecordImage,
       toggleCollapse,
     };
   },
@@ -132,5 +138,9 @@ export default {
 <style scoped>
 .read-the-docs {
   color: #888;
+}
+
+.record-img {
+  width: 60em !important;
 }
 </style>

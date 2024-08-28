@@ -28,8 +28,8 @@
           </div>
           <div class="col">
             <label class="h5 w-100" for="trackcount">Track Anzahl:
-              <input type="number" class="form-control text-center" v-model.number="form.trackcount" @input="emitValue"
-                :max="50" required />
+              <input type="number" class="form-control text-center" v-model.number="form.trackcount" @input="validateTrackcount"
+                :max="50" :min="1" required />
             </label>
           </div>
         </div>
@@ -48,7 +48,7 @@
         <div class="row mt-4">
           <div class="col">
             <label class="h5 w-100" for="releasedate">Erscheinungsdatum:
-              <VueDatePicker v-model="form.releasedate" :format="dateFormat" :bootstrap-styles="true" required />
+              <VueDatePicker v-model="form.releasedate" :format="dateFormat" :bootstrap-styles="true" year-picker required />
             </label>
           </div>
           <div class="col">
@@ -145,7 +145,7 @@ export default {
       type: Number,
       validator: (value) => !isNaN(value) && value !== null && value !== undefined && value !== "",
       required: true,
-      default: 0,
+      default: 1,
     },
     onChange: {
       type: Function,
@@ -169,7 +169,7 @@ export default {
       title: '',
       artist: '',
       format: '',
-      trackcount: props.trackcount,
+      trackcount: props.trackcount > 0 ? props.trackcount : 1,
       label: '',
       country: '',
       releasedate: '',
@@ -179,6 +179,8 @@ export default {
       bookletback: null,
       grade: '',
     });
+
+    const trackcount = ref(props.trackcount > 0 ? props.trackcount : 1);
 
     const thumbnails = ref({
       bookletfront: null,
@@ -193,7 +195,7 @@ export default {
     console.log('Record ID from route:', recordId);
 
 
-    const dateFormat = 'yyyy-mm-dd';
+    const dateFormat = 'yyyy';
 
     const triggerFileInput = (refName) => {
       const fileInput = document.querySelector(`input[ref=${refName}]`); // Get file input element by ref
@@ -238,8 +240,8 @@ export default {
     const cropImage = () => {
       if (cropper.value) {
         const canvas = cropper.value.getCroppedCanvas({
-          width: 250,
-          height: 250,
+          width: 600,
+          height: 600,
         });
 
         canvas.toBlob((blob) => {
@@ -307,6 +309,14 @@ export default {
       } catch (error) {
         console.error("There was an error fetching the collections:", error);
       }
+    };
+
+    const validateTrackcount = () => {
+      // Ensure positive track count
+      if (form.value.trackcount < 1 || isNaN(form.value.trackcount)) {
+        form.value.trackcount = 1; // Reset to 1 if invalid
+      }
+      emitValue();
     };
 
 
@@ -415,6 +425,27 @@ export default {
       }
     );
 
+    watch(
+      () => form.value.trackcount,
+      (newValue) => {
+        // Automatically correct to positive value
+        if (newValue < 1 || isNaN(newValue)) {
+          form.value.trackcount = 1;
+        }
+        console.log('Emitting trackcount:', form.value.trackcount);
+        emitValue();
+        //props.onChange(form.value.trackcount);
+      }
+    );
+
+    watch(
+  () => props.trackcount,
+  (newValue) => {
+    console.log('Trackcount prop updated in child:', newValue);
+    form.value.trackcount = newValue; // Update local form state
+  }
+);
+
     onMounted(() => {
       if (props.isEditMode) {
         fetchRecords();
@@ -422,9 +453,6 @@ export default {
 
     });
 
-    watch(() => props.trackcount, (newValue) => {
-      form.value.trackcount = newValue;
-    });
 
     return {
       emitValue,
@@ -436,6 +464,7 @@ export default {
       handleFileChange,
       submitForm,
       triggerFileInput,
+      validateTrackcount,
     };
   },
 };
@@ -447,7 +476,7 @@ img {
   max-height: 100%;
 }
 
-.modal-content {
-  height: 40em;
+.modal.show .modal-dialog {
+  height: 100% !important;
 }
 </style>

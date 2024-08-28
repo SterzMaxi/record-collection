@@ -2,7 +2,7 @@ security:
     firewalls:
         # Public API routes without authentication
         public_api:
-            pattern: ^/api/(allcollections|collection/\d+/records|collection/\d+/record/\d+|collection/\d+/record/\d+/tracks)
+            pattern: ^/api/(allcollections|collection/\d+/records|collection/\d+/record/\d+|collection/\d+/record/\d+/tracks|collections/search)
             stateless: true
             security: false # Disable security for this firewall
 
@@ -16,7 +16,7 @@ security:
 
     access_control:
         # Allow access to /api/allcollections for everyone
-        - { path: ^/api/(allcollections|collection/\d+/records|collection/\d+/record/\d+|collection/\d+/record/\d+/tracks), roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/(allcollections|collection/\d+/records|collection/\d+/record/\d+|collection/\d+/record/\d+/tracks|collections/search), roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         # All other /api routes require authentication
         - { path: ^/api, roles: ROLE_USER }

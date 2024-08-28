@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RecordRepository::class)]
 #[ORM\Table(name: 'record')]
@@ -68,33 +69,46 @@ class Record
 
     #[ORM\ManyToOne(targetEntity: Collection::class)]
     #[ORM\JoinColumn(name: 'record_collection_id', referencedColumnName: 'collection_id')]
+    #[Assert\NotNull]
     private Collection $collection;
 
     #[ORM\Column(name: 'title', type: 'string')]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private string $title;
 
     #[ORM\Column(name: 'artist', type: 'string')]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private string $artist;
 
     #[ORM\Column(name: 'format', type: 'string')]
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['12-Inch LP', '12-Inch EP', '12-Inch Single', '7-Inch Single', '10-Inch Record'], message: 'Choose a valid format.')]
     private string $format;
 
     #[ORM\Column(name: 'track_count', type: 'integer')]
+    #[Assert\NotBlank]
+    #[Assert\Positive]
     private int $trackcount;
 
     #[ORM\Column(name: 'label', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $label;
 
     #[ORM\Column(name: 'country', type: 'string')]
+    #[Assert\Country]
     private string $country;
 
     #[ORM\Column(name: 'release_date', type: 'datetime')]
     private \DateTime $releasedate;
 
     #[ORM\Column(name: 'genre', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $genre;
 
     #[ORM\Column(name: 'price', type: 'float')]
+    #[Assert\PositiveOrZero]
     private float $price;
 
     #[ORM\Column(name: 'booklet_front', type: 'string')]
@@ -104,6 +118,8 @@ class Record
     private string $bookletback;
 
     #[ORM\Column(name: 'grade', type: 'string')]
+    #[Assert\NotBlank]
+    #[Assert\Choice(choices: ['M', 'M-', 'VG+', 'VG', 'G+', 'G','P'], message: 'Choose a valid grade.')]
     private string $grade;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
@@ -195,7 +211,7 @@ class Record
         return $this->releasedate;
     }
 
-    public function setReleaseDate(\DateTimeInterface $releasedate): void
+    public function setReleaseDate(?\DateTimeInterface $releasedate): void
     {
         $this->releasedate = $releasedate;
     }

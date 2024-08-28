@@ -13,16 +13,16 @@
                     <div v-for="record in chunk" :key="record.id" class="card p-0 record-card me-2 ms-2">
                         <RouterLink
                             :to="{ name: 'ShowRecord', params: { recordId: record.id, collectionId: collectionId } }">
-                            <img :src="getRecordImage(record)" class="card-img-top" :alt="record.title">
+                            <img :src="record.bookletfront" class="card-img-top" :alt="record.title">
                             <div class="card-body record-card-body">
                                 <h5 class="card-title">{{ record.title }}</h5>
                                 <p class="card-text">{{ record.artist }}</p>
-
                             </div>
                         </RouterLink>
 
                         <div v-if="isOwner(record.userId)" class="record-actions">
-                            <RouterLink :to="{ name: 'EditRecord', params: { collectionId: collectionId, recordId: record.id } }">
+                            <RouterLink
+                                :to="{ name: 'EditRecord', params: { collectionId: collectionId, recordId: record.id } }">
                                 <button class="btn btn-primary btn-sm">
 
                                     <i class="bi bi-pencil"></i>
@@ -62,13 +62,13 @@
                 </div>
             </div>
         </div>
-        <button class="carousel-control-prev" type="button" :data-bs-target="'#recordCarousel' + collectionId"
-            data-bs-slide="prev">
+        <button v-if="chunkedRecords.length > 1" class="carousel-control-prev" type="button"
+            :data-bs-target="'#recordCarousel' + collectionId" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" :data-bs-target="'#recordCarousel' + collectionId"
-            data-bs-slide="next">
+        <button v-if="chunkedRecords.length > 1" class="carousel-control-next" type="button"
+            :data-bs-target="'#recordCarousel' + collectionId" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
         </button>
@@ -80,9 +80,13 @@
 <script>
 import { ref, computed, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue';
 import axios from 'axios';
+import BookletCarousel from './BookletCarousel.vue';
 
 export default {
     name: 'RecordThumbnail',
+    components: {
+        BookletCarousel
+    },
     props: {
         collectionId: {
             type: Number,
@@ -157,22 +161,10 @@ export default {
             return chunks;
         });
 
-        const getRecordImage = (record) => {
-            const baseUrl = window.location.origin;
-            if (record.bookletfront) {
-                return `${record.bookletfront}`;
-            } else if (record.bookletback) {
-                return `${record.bookletback}`;
-            } else {
-                return '../assets/vue.svg';
-            }
-        };
+
 
         const isOwner = (ownerId) => {
             return userId.value === ownerId;
-        };
-
-        const editRecord = (recordId) => {
         };
 
         const deleteRecord = async (recordId) => {
@@ -192,10 +184,8 @@ export default {
         return {
             records,
             chunkedRecords,
-            getRecordImage,
             userId,
             isOwner,
-            editRecord,
             deleteRecord,
         };
     },
