@@ -1,5 +1,5 @@
-/var/logs/nginx
+var/logs/nginx
 
 .env
 
-/backend/bin/
+backend/bin/
