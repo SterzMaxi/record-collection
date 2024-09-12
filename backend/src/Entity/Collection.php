@@ -42,9 +42,11 @@ class Collection
     private User $user;
 
     #[ORM\Column(name: 'collectionname', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $collectionname;
 
     #[ORM\Column(name: 'style', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $style;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]

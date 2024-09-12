@@ -51,21 +51,27 @@ class Track
     private Record $record;
 
     #[ORM\Column(name: 'artist', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $artist;
 
     #[ORM\Column(name: 'track_number', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $tracknumber;
 
     #[ORM\Column(name: 'track_title', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $tracktitle;
 
     #[ORM\Column(name: 'track_time', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $tracktime;
 
     #[ORM\Column(name: 'genre', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $genre;
 
     #[ORM\Column(name: 'listen_link', type: 'string')]
+    #[Assert\Length(max: 255)]
     private string $listenlink;
 
     #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
